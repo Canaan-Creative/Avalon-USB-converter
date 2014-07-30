@@ -1,0 +1,9 @@
+*.d
+*.o
+*.launch
+*.dep
+
+firmware/code/Debug
+firmware/code/.settings
+firmware/nxplib/lpc_chip_11uxx_lib/Debug
+firmware/nxplib/nxp_lpcxpresso_11u14_board_lib/Debug
