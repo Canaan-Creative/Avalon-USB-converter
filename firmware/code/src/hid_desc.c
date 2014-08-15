@@ -76,9 +76,9 @@ ALIGNED(4) const uint8_t USB_DeviceDescriptor[] = {
 	0x00,							/* bDeviceSubClass */
 	0x00,							/* bDeviceProtocol */
 	USB_MAX_PACKET0,				/* bMaxPacketSize0 */
-	WBVAL(0x1FC9),					/* idVendor */
-	WBVAL(0x0088),					/* idProduct */
-	WBVAL(0x0100),					/* bcdDevice: 1.00 */
+	WBVAL(0x29F1),					/* idVendor */
+	WBVAL(0x33F2),					/* idProduct */
+	WBVAL(0x1408),					/* bcdDevice: 1.00 */
 	0x01,							/* iManufacturer */
 	0x02,							/* iProduct */
 	0x03,							/* iSerialNumber */
