@@ -1,5 +1,5 @@
 /*
- * @brief Programming API used with HID example
+ * @brief Programming API used with CDC example
  *
  * @note
  * Copyright(C) NXP Semiconductors, 2013
@@ -29,33 +29,48 @@
  * this code.
  */
 
-#ifndef __HID_GENERIC_H_
-#define __HID_GENERIC_H_
+#ifndef __CDC_I2C_H_
+#define __CDC_I2C_H_
 
-#include "app_usbd_cfg.h"
+#include "chip.h"
+#include "lpcusbsio_i2c.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-/** @ingroup EXAMPLES_USBDLIB_11XX_HID_GENERIC
+/** @ingroup EXAMPLES_USBDROM_11U14_CDC_GENERIC
  * @{
  */
 
+#define CDC_I2C_TX_BUSY        _BIT(0)
+
 /**
- * @brief	Generic HID interface init routine.
+ * @brief	CDC_I2C interface init routine.
  * @param	hUsb		: Handle to USB device stack
- * @param	pIntfDesc	: Pointer to HID interface descriptor
- * @param	mem_base	: Pointer to memory address which can be used by HID driver
- * @param	mem_size	: Size of the memory passed
+ * @param	pIntfDesc	: Pointer to CDC interface descriptor
+ * @param	pUsbParam	: Pointer USB param structure returned by previous init call
+ * @param	pI2C	    : Pointer to I2C port, this CDC instance needs to bind.
+ * @param   pI2CCDC     : Pointer to CDC_I2C handle returned on success
  * @return	On success returns LPC_OK. Params mem_base and mem_size are updated
  *			to point to new base and available size.
  */
-ErrorCode_t usb_hid_init(USBD_HANDLE_T hUsb,
-						 USB_INTERFACE_DESCRIPTOR *pIntfDesc,
-						 uint32_t *mem_base,
-						 uint32_t *mem_size);
+/*****************************************************************************
+ * Public functions
+ ****************************************************************************/
+/* CDC init routine */
+ErrorCode_t CDC_I2C_init(USBD_HANDLE_T hUsb,
+		USB_CORE_DESCS_T* pDesc,
+		USBD_API_INIT_PARAM_T* pUsbParam,
+		LPC_I2C_T* pI2C,
+		USBD_HANDLE_T* pI2CCDC);
+
+/**
+ * @brief	Process CDC_I2C request and response queue.
+ * @param	hI2CCDC		: Handle to CDC_I2C instance
+ */
+void CDC_I2C_process(USBD_HANDLE_T hI2CCDC);
 
 /**
  * @}
@@ -65,4 +80,4 @@ ErrorCode_t usb_hid_init(USBD_HANDLE_T hUsb,
 }
 #endif
 
-#endif /* __HID_GENERIC_H_ */
+#endif /* __CDC_I2C_H_ */

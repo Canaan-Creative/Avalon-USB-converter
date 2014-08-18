@@ -1,5 +1,5 @@
 /*
- * @brief Virtual Comm port USB descriptors
+ * @brief This file contains CDC to I2C bridge example using USB ROM Drivers.
  *
  * @note
  * Copyright(C) NXP Semiconductors, 2013
@@ -30,6 +30,7 @@
  */
 
 #include "app_usbd_cfg.h"
+#include "cdc_i2c.h"
 
 /*****************************************************************************
  * Private types/enumerations/variables
@@ -130,8 +131,8 @@ ALIGNED(4) uint8_t USB_FsConfigDescriptor[] = {
 	USB_ENDPOINT_DESCRIPTOR_TYPE,		/* bDescriptorType */
 	USB_CDC_INT_EP,						/* bEndpointAddress */
 	USB_ENDPOINT_TYPE_INTERRUPT,		/* bmAttributes */
-	WBVAL(0x0040),						/* wMaxPacketSize */
-	0x1,			/* 2ms */           /* bInterval */
+	WBVAL(0x0010),						/* wMaxPacketSize */
+	0x02,			/* 2ms */           /* bInterval */
 
 	/* Interface 1, Alternate Setting 0, Data class interface descriptor*/
 	USB_INTERFACE_DESC_SIZE,			/* bLength */
@@ -204,3 +205,4 @@ ALIGNED(4) const uint8_t USB_StringDescriptor[] = {
 	'O', 0,
 	'M', 0,
 };
+

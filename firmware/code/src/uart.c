@@ -38,8 +38,8 @@
  ****************************************************************************/
 
 /* Ring buffer size */
-#define UART_RX_BUF_SZ		128
-#define UART_TX_BUF_SZ		1024
+#define UART_RX_BUF_SZ		64
+#define UART_TX_BUF_SZ		512
 
 /*
  * uart only use rx ringbuf, tx use send block

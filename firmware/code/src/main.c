@@ -1,5 +1,5 @@
 /*
- * @brief HID I2C bridge example
+ * @brief CDC I2C bridge example
  *
  * @note
  * Copyright(C) NXP Semiconductors, 2013
@@ -33,7 +33,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "app_usbd_cfg.h"
-#include "hid_i2c.h"
+#include "cdc_i2c.h"
 
 #ifdef __CODE_RED
 #include <cr_section_macros.h>
@@ -53,15 +53,15 @@ __CRP unsigned int CRP_WORD = CRP_NO_ISP;
 static USBD_HANDLE_T g_hUsb;
 extern const  USBD_HW_API_T hw_api;
 extern const  USBD_CORE_API_T core_api;
-extern const  USBD_HID_API_T hid_api;
+extern const  USBD_CDC_API_T cdc_api;
 /* Since this example only uses HID class link functions for that class only */
 static const  USBD_API_T g_usbApi = {
 	&hw_api,
 	&core_api,
 	0,
 	0,
-	&hid_api,
 	0,
+	&cdc_api,
 	0,
 	0x02221101,
 };
@@ -94,6 +94,7 @@ void USB_IRQHandler(void)
 		addr[0] &= ~(_BIT(29));	/* clear EP0_OUT stall */
 		addr[2] &= ~(_BIT(29));	/* clear EP0_IN stall */
 	}
+
 	USBD_API->hw->ISR(g_hUsb);
 }
 
@@ -146,7 +147,7 @@ int main(void)
 	USBD_API_INIT_PARAM_T usb_param;
 	USB_CORE_DESCS_T desc;
 	ErrorCode_t ret = LPC_OK;
-	USBD_HANDLE_T hHID_I2C0;
+	USBD_HANDLE_T hCDC_I2C0;
 
 	/* Initialize board and chip */
 	Board_Init();
@@ -167,7 +168,7 @@ int main(void)
 	    to avoid data corruption. Corruption of padding memory doesn鈥檛 affect the
 	    stack/program behaviour.
 	 */
-	usb_param.max_num_ep = 2 + 1;
+	usb_param.max_num_ep = 3;
 	usb_param.mem_base = USB_STACK_MEM_BASE;
 	usb_param.mem_size = USB_STACK_MEM_SIZE;
 
@@ -186,18 +187,10 @@ int main(void)
 	/* USB Initialization */
 	ret = USBD_API->hw->Init(&g_hUsb, &desc, &usb_param);
 	if (ret == LPC_OK) {
-
-		/*	WORKAROUND for artf32219 ROM driver BUG:
-		    The mem_base parameter part of USB_param structure returned
-		    by Init() routine is not accurate causing memory allocation issues for
-		    further components.
-		 */
-		usb_param.mem_base = USB_STACK_MEM_BASE + (USB_STACK_MEM_SIZE - usb_param.mem_size);
-
 		ret =
-			HID_I2C_init(g_hUsb,
-						 (USB_INTERFACE_DESCRIPTOR *) &USB_FsConfigDescriptor[sizeof(USB_CONFIGURATION_DESCRIPTOR)],
-						 &usb_param, LPC_I2C, &hHID_I2C0);
+			CDC_I2C_init(g_hUsb,
+						 &desc,
+						 &usb_param, LPC_I2C, &hCDC_I2C0);
 		if (ret == LPC_OK) {
 			/*  enable USB interrupts */
 			NVIC_EnableIRQ(USB0_IRQn);
@@ -208,7 +201,7 @@ int main(void)
 	}
 
 	while (1) {
-		HID_I2C_process(hHID_I2C0);
+		CDC_I2C_process(hCDC_I2C0);
 
 		__WFI();
 	}
