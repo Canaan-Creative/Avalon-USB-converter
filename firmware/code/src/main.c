@@ -202,7 +202,6 @@ int main(void)
 
 	while (1) {
 		CDC_I2C_process(hCDC_I2C0);
-
 		__WFI();
 	}
 }

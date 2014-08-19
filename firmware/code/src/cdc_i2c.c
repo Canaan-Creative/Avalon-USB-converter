@@ -64,7 +64,6 @@ typedef struct __HID_I2C_CTRL_T {
 	uint8_t respWrIndx;		/*!< Write index for response queue. */
 	uint8_t respRdIndx;		/*!< Read index for response queue. */
 	uint8_t reqPending;		/*!< Flag indicating request is pending in EP RAM */
-	uint8_t respIdle;		/*!< Flag indicating EP_IN/response interrupt is idling */
 	uint8_t state;			/*!< State of the controller */
 	uint8_t resetReq;		/*!< Flag indicating if reset is requested by host */
 	uint8_t epin_adr;		/*!< Interrupt IN endpoint associated with this HID instance. */
@@ -80,9 +79,6 @@ static const char *g_fwVersion = "FW v1.00 (" __DATE__ " " __TIME__ ")";
 /*****************************************************************************
  * Public types/enumerations/variables
  ****************************************************************************/
-
-extern const uint8_t HID_I2C_ReportDescriptor[];
-extern const uint16_t HID_I2C_ReportDescSize;
 
 /*****************************************************************************
  * Private functions
@@ -118,7 +114,7 @@ static ErrorCode_t CDC_I2C_Bind(CDC_I2C_CTRL_T *pCDCI2c, LPC_I2C_T *pI2C)
 
 static INLINE void CDC_I2C_IncIndex(uint8_t *index)
 {
-	*index = (*index + 1) & (CDC_I2C_MAX_PACKETS - 1);
+	*index = (*index + 1) % CDC_I2C_MAX_PACKETS;
 }
 
 /* CDC_I2C Interrupt endpoint event handler. */
@@ -138,12 +134,10 @@ static ErrorCode_t CDC_I2C_EpOut_Hdlr(USBD_HANDLE_T hUsb, void *data, uint32_t e
 {
 	CDC_I2C_CTRL_T *pCDCI2c = (CDC_I2C_CTRL_T *) data;
 	CDC_I2C_OUT_REPORT_T *pOut;
-	uint16_t len;
 
 	if (event == USB_EVT_OUT) {
-		DEBUGOUT("CDC_I2C_EpOut_Hdlr\r\n");
 		/* Read the new request received. */
-		len = USBD_API->hw->ReadEP(hUsb, pCDCI2c->epout_adr, &pCDCI2c->reqQ[pCDCI2c->reqWrIndx][0]);
+		USBD_API->hw->ReadEP(hUsb, pCDCI2c->epout_adr, &pCDCI2c->reqQ[pCDCI2c->reqWrIndx][0]);
 		pOut = (CDC_I2C_OUT_REPORT_T *) &pCDCI2c->reqQ[pCDCI2c->reqWrIndx][0];
 
 		/* handle CDC_I2C_REQ_FLUSH request in IRQ context to abort current
@@ -154,30 +148,17 @@ static ErrorCode_t CDC_I2C_EpOut_Hdlr(USBD_HANDLE_T hUsb, void *data, uint32_t e
 
 		/* normal request queue the buffer */
 		CDC_I2C_IncIndex(&pCDCI2c->reqWrIndx);
-
-		/* last report is successfully sent. Send next response if in queue. */
-		if (pCDCI2c->respRdIndx != pCDCI2c->respWrIndx) {
-			if ((pCDCI2c->tx_flags & CDC_I2C_TX_BUSY) == 0) {
-				pCDCI2c->tx_flags |= CDC_I2C_TX_BUSY;
-				pCDCI2c->respIdle = 0;
-				len = pCDCI2c->respQ[pCDCI2c->respRdIndx][0];
-				USBD_API->hw->WriteEP(pCDCI2c->hUsb, pCDCI2c->epin_adr, &pCDCI2c->respQ[pCDCI2c->respRdIndx][0], len);
-				CDC_I2C_IncIndex(&pCDCI2c->respRdIndx);
-			}
-
-		}
-		else {
-			pCDCI2c->respIdle = 1;
-		}
 	}
 	return LPC_OK;
 }
 
 static uint32_t CDC_I2C_StatusCheckLoop(CDC_I2C_CTRL_T *pCDCI2c)
 {
+	uint8_t try = 0;
+
 	/* wait for status change interrupt */
 	while ( (Chip_I2CM_StateChanged(pCDCI2c->pI2C) == 0) &&
-			(pCDCI2c->resetReq == 0)) {
+			(pCDCI2c->resetReq == 0) && (try++ < 200)) {
 		/* loop */
 	}
 	return pCDCI2c->resetReq;
@@ -423,9 +404,6 @@ ErrorCode_t CDC_I2C_init(USBD_HANDLE_T hUsb,
 		pCDCI2c->hCdc = hCdc;
 		/* set return handle */
 		*pI2CCDC = (USBD_HANDLE_T) pCDCI2c;
-		/* set response is idling. For HID_I2C_process() to kickstart transmission if response
-		   data is pending. */
-		pCDCI2c->respIdle = 1;
 
 		/* bind to I2C port */
 		ret = CDC_I2C_Bind(pCDCI2c, pI2C);
@@ -470,23 +448,8 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 	if (USB_IsConfigured(pCDCI2c->hUsb)) {
 		/* set state to connected */
 		pCDCI2c->state = CDC_I2C_STATE_CONNECTED;
-
-		/* last report is successfully sent. Send next response if in queue. */
-		if (pCDCI2c->respRdIndx != pCDCI2c->respWrIndx) {
-			if ((pCDCI2c->tx_flags & CDC_I2C_TX_BUSY) == 0) {
-				pCDCI2c->tx_flags |= CDC_I2C_TX_BUSY;
-				pCDCI2c->respIdle = 0;
-				len = pCDCI2c->respQ[pCDCI2c->respRdIndx][0];
-				USBD_API->hw->WriteEP(pCDCI2c->hUsb, pCDCI2c->epin_adr, &pCDCI2c->respQ[pCDCI2c->respRdIndx][0], len);
-				CDC_I2C_IncIndex(&pCDCI2c->respRdIndx);
-			}
-
-		}
-		else {
-			pCDCI2c->respIdle = 1;
-		}
-
 		if (pCDCI2c->reqWrIndx != pCDCI2c->reqRdIndx) {
+			DEBUGOUT("CDC_I2C_process : req %d,%d\r\n", pCDCI2c->reqWrIndx, pCDCI2c->reqRdIndx);
 			/* process the current packet */
 			pOut = (CDC_I2C_OUT_REPORT_T *) &pCDCI2c->reqQ[pCDCI2c->reqRdIndx][0];
 			pIn = (CDC_I2C_IN_REPORT_T *) &pCDCI2c->respQ[pCDCI2c->respWrIndx][0];
@@ -550,15 +513,15 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 			CDC_I2C_IncIndex(&pCDCI2c->respWrIndx);
 		}
 
-		/* Kick-start response tx if it is idling and we have something to send. */
-		if ((pCDCI2c->respIdle) && (pCDCI2c->respRdIndx != pCDCI2c->respWrIndx)) {
-
-			pCDCI2c->respIdle = 0;
-			USBD_API->hw->WriteEP(pCDCI2c->hUsb,
-								  pCDCI2c->epin_adr,
-								  &pCDCI2c->respQ[pCDCI2c->respRdIndx][0],
-								  CDC_I2C_PACKET_SZ);
-			CDC_I2C_IncIndex(&pCDCI2c->respRdIndx);
+		/* last report is successfully sent. Send next response if in queue. */
+		if (pCDCI2c->respRdIndx != pCDCI2c->respWrIndx) {
+			DEBUGOUT("CDC_I2C_process : resp %d,%d\r\n", pCDCI2c->respWrIndx, pCDCI2c->respRdIndx);
+			if ((pCDCI2c->tx_flags & CDC_I2C_TX_BUSY) == 0) {
+				pCDCI2c->tx_flags |= CDC_I2C_TX_BUSY;
+				len = pCDCI2c->respQ[pCDCI2c->respRdIndx][0];
+				USBD_API->hw->WriteEP(pCDCI2c->hUsb, pCDCI2c->epin_adr, &pCDCI2c->respQ[pCDCI2c->respRdIndx][0], len);
+				CDC_I2C_IncIndex(&pCDCI2c->respRdIndx);
+			}
 		}
 	}
 	else {
@@ -567,9 +530,9 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 			/* reset indexes */
 			pCDCI2c->reqWrIndx = pCDCI2c->reqRdIndx = 0;
 			pCDCI2c->respRdIndx = pCDCI2c->respWrIndx = 0;
-			pCDCI2c->respIdle = 1;
 			pCDCI2c->resetReq = 0;
 		}
 		pCDCI2c->state = CDC_I2C_STATE_DISCON;
+		DEBUGOUT("DEBUG: CDC_I2C_STATE_DISCON\r\n");
 	}
 }
