@@ -43,13 +43,7 @@
 #ifdef __CODE_RED
 __CRP unsigned int CRP_WORD = CRP_NO_ISP;
 #endif
-/*****************************************************************************
- * Private types/enumerations/variables
- ****************************************************************************/
 
-/*****************************************************************************
- * Public types/enumerations/variables
- ****************************************************************************/
 static USBD_HANDLE_T g_hUsb;
 extern const  USBD_HW_API_T hw_api;
 extern const  USBD_CORE_API_T core_api;
@@ -67,13 +61,6 @@ static const  USBD_API_T g_usbApi = {
 };
 
 const  USBD_API_T *g_pUsbApi = &g_usbApi;
-/*****************************************************************************
- * Private functions
- ****************************************************************************/
-
-/*****************************************************************************
- * Public functions
- ****************************************************************************/
 
 /**
  * @brief	Handle interrupt from USB
@@ -153,10 +140,10 @@ int main(void)
 	UART_Init();
 	AVALON_TMR_Init();
 
-	/* enable clocks and pinmux */
+	/* Enable clocks and pinmux */
 	usb_pin_clk_init();
 
-	/* initialize call back structures */
+	/* Initialize call back structures */
 	memset((void *) &usb_param, 0, sizeof(USBD_API_INIT_PARAM_T));
 	usb_param.usb_reg_base = LPC_USB0_BASE;
 	/*	WORKAROUND for artf44835 ROM driver BUG:
@@ -164,7 +151,7 @@ int main(void)
 	    next to the endpoint control data. For example When EP0, EP1_IN, EP1_OUT,
 	    EP2_IN are used we need to specify 3 here. But as a workaround for this
 	    issue specify 4. So that extra EPs control structure acts as padding buffer
-	    to avoid data corruption. Corruption of padding memory doesn鈥檛 affect the
+	    to avoid data corruption. Corruption of padding memory doesn't affect the
 	    stack/program behaviour.
 	 */
 	usb_param.max_num_ep = 2 + 1;
@@ -185,31 +172,30 @@ int main(void)
 
 	/* USB Initialization */
 	ret = USBD_API->hw->Init(&g_hUsb, &desc, &usb_param);
-	if (ret == LPC_OK) {
-
-		/*	WORKAROUND for artf32219 ROM driver BUG:
-		    The mem_base parameter part of USB_param structure returned
-		    by Init() routine is not accurate causing memory allocation issues for
-		    further components.
-		 */
-		usb_param.mem_base = USB_STACK_MEM_BASE + (USB_STACK_MEM_SIZE - usb_param.mem_size);
-
-		ret =
-			HID_I2C_init(g_hUsb,
-						 (USB_INTERFACE_DESCRIPTOR *) &USB_FsConfigDescriptor[sizeof(USB_CONFIGURATION_DESCRIPTOR)],
-						 &usb_param, LPC_I2C, &hHID_I2C0);
-		if (ret == LPC_OK) {
-			/*  enable USB interrupts */
-			NVIC_EnableIRQ(USB0_IRQn);
-			/* now connect */
-			USBD_API->hw->Connect(g_hUsb, 1);
-		}
-
+	if (ret != LPC_OK) {
+			while(1);
 	}
+	/*	WORKAROUND for artf32219 ROM driver BUG:
+		The mem_base parameter part of USB_param structure returned
+		by Init() routine is not accurate causing memory allocation issues for
+		further components.
+	 */
+	usb_param.mem_base = USB_STACK_MEM_BASE + (USB_STACK_MEM_SIZE - usb_param.mem_size);
+
+	ret = HID_I2C_init(g_hUsb,
+					 (USB_INTERFACE_DESCRIPTOR *) &USB_FsConfigDescriptor[sizeof(USB_CONFIGURATION_DESCRIPTOR)],
+					 &usb_param, LPC_I2C, &hHID_I2C0);
+	if (ret != LPC_OK) {
+		while(1);
+	}
+
+	/* Enable USB interrupts */
+	NVIC_EnableIRQ(USB0_IRQn);
+	/* Now connect */
+	USBD_API->hw->Connect(g_hUsb, 1);
 
 	while (1) {
 		HID_I2C_process(hHID_I2C0);
-
 		__WFI();
 	}
 }

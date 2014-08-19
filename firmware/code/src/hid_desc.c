@@ -32,14 +32,6 @@
 #include "app_usbd_cfg.h"
 #include "hid_i2c.h"
 
-/*****************************************************************************
- * Private types/enumerations/variables
- ****************************************************************************/
-
-/*****************************************************************************
- * Public types/enumerations/variables
- ****************************************************************************/
-
 #define HID_FEATURE_REPORT_BYTES     1				/* size of report in Bytes */
 
 /**
@@ -193,21 +185,17 @@ const uint8_t USB_StringDescriptor[] = {
 	'e', 0,
 	'r', 0,
 	/* Index 0x03: Serial Number */
-	(13 * 2 + 2),					/* bLength (13 Char + Type + length) */
+	(9 * 2 + 2),					/* bLength (13 Char + Type + length) */
 	USB_STRING_DESCRIPTOR_TYPE,		/* bDescriptorType */
-	'A', 0,
-	'B', 0,
-	'C', 0,
-	'D', 0,
-	'1', 0,
 	'2', 0,
-	'3', 0,
+	'0', 0,
+	'1', 0,
 	'4', 0,
-	'5', 0,
-	'6', 0,
-	'7', 0,
+	'0', 0,
 	'8', 0,
+	'1', 0,
 	'9', 0,
+	'0', 0,
 	/* Index 0x04: Interface 0, Alternate Setting 0 */
 	(9 * 2 + 2),					/* bLength (3 Char + Type + length) */
 	USB_STRING_DESCRIPTOR_TYPE,		/* bDescriptorType */

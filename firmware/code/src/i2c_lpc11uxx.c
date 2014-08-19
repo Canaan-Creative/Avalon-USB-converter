@@ -48,18 +48,6 @@
 		UART_Write((uint8_t*)str,strlen(str));	\
 	}
 
-/*****************************************************************************
- * Public types/enumerations/variables
- ****************************************************************************/
-
-/*****************************************************************************
- * Private functions
- ****************************************************************************/
-
-/*****************************************************************************
- * Public functions
- ****************************************************************************/
-
 /* Initializes the LPC_I2C peripheral with specified parameter */
 void Chip_I2CM_Init(LPC_I2C_T *pI2C)
 {
@@ -77,7 +65,6 @@ void Chip_I2CM_SetBusSpeed(LPC_I2C_T *pI2C, uint32_t busSpeed)
 {
 	uint32_t clockDiv = (Chip_Clock_GetMainClockRate() / busSpeed);
 
-	//Chip_I2CM_SetDutyCycle(pI2C, 12, 12);
 	Chip_I2CM_SetDutyCycle(pI2C, (clockDiv >> 1), (clockDiv - (clockDiv >> 1)));
 }
 
