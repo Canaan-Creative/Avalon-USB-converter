@@ -45,13 +45,6 @@
 #define CDC_I2C_STATE_DISCON        0
 #define CDC_I2C_STATE_CONNECTED     1
 
-#undef DEBUGOUT
-#define DEBUGOUT(...) {		\
-		char str[255];						\
-		memset(str, 0, 255);				\
-		m_sprintf(str, __VA_ARGS__);		\
-		UART_Write((uint8_t*)str,strlen(str));	\
-	}
 /**
  * Structure containing HID_I2C control data
  */
@@ -533,6 +526,5 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 			pCDCI2c->resetReq = 0;
 		}
 		pCDCI2c->state = CDC_I2C_STATE_DISCON;
-		DEBUGOUT("DEBUG: CDC_I2C_STATE_DISCON\r\n");
 	}
 }
