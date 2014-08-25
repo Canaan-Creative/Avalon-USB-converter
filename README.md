@@ -1,6 +1,6 @@
 Avalon-USB-Converter
 ====================
-Avalon-USB-Converter is an USB2IIC & USB2UART converter.
+Avalon-USB-Converter is an USB2IIC & USB2UART converter based LPC11u14.
 It converts all API calls into USB messages which are transferred to LPC11u14,which in turn communicates with serial devices using I2C and UART interfaces. 
 It uses USB-HID/USB-CDC class as transport mechanism.
 
