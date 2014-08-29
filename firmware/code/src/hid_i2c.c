@@ -45,13 +45,6 @@
 #define HID_I2C_STATE_DISCON        0
 #define HID_I2C_STATE_CONNECTED     1
 
-#undef DEBUGOUT
-#define DEBUGOUT(...) {		\
-		char str[255];						\
-		memset(str, 0, 255);				\
-		m_sprintf(str, __VA_ARGS__);		\
-		UART_Write((uint8_t*)str,strlen(str));	\
-	}
 /**
  * Structure containing HID_I2C control data
  */
@@ -349,7 +342,7 @@ static void HID_I2C_HandleXferReq(HID_I2C_CTRL_T *pHidI2c,
 	xfer.rxSz = pXfrParam->rxLength;
 	xfer.txSz = pXfrParam->txLength;
 	xfer.options = pXfrParam->options;
-	DEBUGOUT("xfer.slaveAddr = %d, rxSz = %d, txSz = %d\r\n", xfer.slaveAddr, xfer.rxSz, xfer.txSz);
+
 	/* start transfer */
 	Chip_I2CM_Xfer(pHidI2c->pI2C, &xfer);
 
@@ -368,7 +361,7 @@ static void HID_I2C_HandleXferReq(HID_I2C_CTRL_T *pHidI2c,
 	/* Update the length we have to send back */
 	if ((pXfrParam->rxLength - xfer.rxSz) > 0) {
 		pIn->length += pXfrParam->rxLength - xfer.rxSz;
-		DEBUGOUT("Write = %d\r\n", pIn->length - 4);
+		DEBUGOUT("In(0x%02x,0x%02x), Out(0x%02x,0x%02x)\r\n", pIn->data[0], pIn->data[1], pXfrParam->rxLength, pXfrParam->txLength);
 	}
 
 	/* update response with the I2CM status returned. No translation
@@ -502,7 +495,7 @@ void HID_I2C_process(USBD_HANDLE_T hI2CHid)
 			pIn->sesId = pOut->sesId;
 			pIn->resp = HID_I2C_RES_INVALID_CMD;
 
-			DEBUGOUT("pOut->req = %d\r\n", pOut->req);
+			DEBUGOUT("pOut->req = 0x%02x\r\n", pOut->req);
 			switch (pOut->req) {
 			case HID_I2C_REQ_INIT_PORT:
 				/* Init I2C port */
@@ -527,19 +520,11 @@ void HID_I2C_process(USBD_HANDLE_T hI2CHid)
 
 			case HID_I2C_REQ_DEVICE_WRITE:
 			case HID_I2C_REQ_DEVICE_READ:
-				timecnt = 0;
-				AVALON_TMR_Set(AVALON_TMR_ID1, 1, AVALON_TMRID1_Fun);
 				HID_I2C_HandleRWReq(pHidI2c, pOut, pIn, (pOut->req == HID_I2C_REQ_DEVICE_READ));
-				AVALON_TMR_Kill(AVALON_TMR_ID1);
-				DEBUGOUT("W/R rate : %d bps\r\n", 40 * 8 * TICKRATE_AVALON / timecnt);
 				break;
 
 			case HID_I2C_REQ_DEVICE_XFER:
-				timecnt = 0;
-				AVALON_TMR_Set(AVALON_TMR_ID1, 1, AVALON_TMRID1_Fun);
 				HID_I2C_HandleXferReq(pHidI2c, pOut, pIn);
-				AVALON_TMR_Kill(AVALON_TMR_ID1);
-				DEBUGOUT("XFER rate : %d bps\r\n", 40 * 8 * TICKRATE_AVALON / timecnt);
 				break;
 
 			case HID_I2C_REQ_RESET:
