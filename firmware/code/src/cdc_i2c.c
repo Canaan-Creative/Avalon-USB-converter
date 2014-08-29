@@ -116,7 +116,6 @@ static ErrorCode_t CDC_I2C_EpIn_Hdlr(USBD_HANDLE_T hUsb, void *data, uint32_t ev
 	CDC_I2C_CTRL_T *pCDCI2c = (CDC_I2C_CTRL_T *) data;
 
 	if (event == USB_EVT_IN) {
-		DEBUGOUT("CDC_I2C_EpIn_Hdlr\r\n");
 		pCDCI2c->tx_flags &= ~CDC_I2C_TX_BUSY;
 	}
 	return LPC_OK;
@@ -321,7 +320,6 @@ static void CDC_I2C_HandleXferReq(CDC_I2C_CTRL_T *pCDCI2c,
 	xfer.rxSz = pXfrParam->rxLength;
 	xfer.txSz = pXfrParam->txLength;
 	xfer.options = pXfrParam->options;
-	DEBUGOUT("xfer.slaveAddr = %d, rxSz = %d, txSz = %d\r\n", xfer.slaveAddr, xfer.rxSz, xfer.txSz);
 	/* start transfer */
 	Chip_I2CM_Xfer(pCDCI2c->pI2C, &xfer);
 
@@ -340,7 +338,7 @@ static void CDC_I2C_HandleXferReq(CDC_I2C_CTRL_T *pCDCI2c,
 	/* Update the length we have to send back */
 	if ((pXfrParam->rxLength - xfer.rxSz) > 0) {
 		pIn->length += pXfrParam->rxLength - xfer.rxSz;
-		DEBUGOUT("Write = %d\r\n", pIn->length - 4);
+		DEBUGOUT("In(0x%02x,0x%02x), Out(0x%02x,0x%02x)\r\n", pIn->data[0], pIn->data[1], pXfrParam->rxLength, pXfrParam->txLength);
 	}
 
 	/* update response with the I2CM status returned. No translation
@@ -442,7 +440,6 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 		/* set state to connected */
 		pCDCI2c->state = CDC_I2C_STATE_CONNECTED;
 		if (pCDCI2c->reqWrIndx != pCDCI2c->reqRdIndx) {
-			DEBUGOUT("CDC_I2C_process : req %d,%d\r\n", pCDCI2c->reqWrIndx, pCDCI2c->reqRdIndx);
 			/* process the current packet */
 			pOut = (CDC_I2C_OUT_REPORT_T *) &pCDCI2c->reqQ[pCDCI2c->reqRdIndx][0];
 			pIn = (CDC_I2C_IN_REPORT_T *) &pCDCI2c->respQ[pCDCI2c->respWrIndx][0];
@@ -452,7 +449,7 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 			pIn->sesId = pOut->sesId;
 			pIn->resp = CDC_I2C_RES_INVALID_CMD;
 
-			DEBUGOUT("pOut->req = %d\r\n", pOut->req);
+			DEBUGOUT("pOut->req = 0x%02x\r\n", pOut->req);
 			switch (pOut->req) {
 			case CDC_I2C_REQ_INIT_PORT:
 				/* Init I2C port */
@@ -477,19 +474,11 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 
 			case CDC_I2C_REQ_DEVICE_WRITE:
 			case CDC_I2C_REQ_DEVICE_READ:
-				timecnt = 0;
-				AVALON_TMR_Set(AVALON_TMR_ID1, 1, AVALON_TMRID1_Fun);
 				CDC_I2C_HandleRWReq(pCDCI2c, pOut, pIn, (pOut->req == CDC_I2C_REQ_DEVICE_READ));
-				AVALON_TMR_Kill(AVALON_TMR_ID1);
-				DEBUGOUT("W/R rate : %d bps\r\n", 40 * 8 * TICKRATE_AVALON / timecnt);
 				break;
 
 			case CDC_I2C_REQ_DEVICE_XFER:
-				timecnt = 0;
-				AVALON_TMR_Set(AVALON_TMR_ID1, 1, AVALON_TMRID1_Fun);
 				CDC_I2C_HandleXferReq(pCDCI2c, pOut, pIn);
-				AVALON_TMR_Kill(AVALON_TMR_ID1);
-				DEBUGOUT("XFER rate : %d bps\r\n", 40 * 8 * TICKRATE_AVALON / timecnt);
 				break;
 
 			case CDC_I2C_REQ_RESET:
@@ -499,7 +488,6 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 				Chip_I2CM_SendStop(pCDCI2c->pI2C);
 				pCDCI2c->resetReq = 0;
 				break;
-
 			}
 
 			CDC_I2C_IncIndex(&pCDCI2c->reqRdIndx);
@@ -508,7 +496,6 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 
 		/* last report is successfully sent. Send next response if in queue. */
 		if (pCDCI2c->respRdIndx != pCDCI2c->respWrIndx) {
-			DEBUGOUT("CDC_I2C_process : resp %d,%d\r\n", pCDCI2c->respWrIndx, pCDCI2c->respRdIndx);
 			if ((pCDCI2c->tx_flags & CDC_I2C_TX_BUSY) == 0) {
 				pCDCI2c->tx_flags |= CDC_I2C_TX_BUSY;
 				len = pCDCI2c->respQ[pCDCI2c->respRdIndx][0];

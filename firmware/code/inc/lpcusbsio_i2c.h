@@ -52,12 +52,12 @@ extern "C"
 #define CDC_I2C_HEADER_SZ           4		/*!< Size of the header in I2C command packet */
 
 /* CDC_I2C Requests */
-#define CDC_I2C_REQ_RESET           0		/*!< Request to abort and flush all pending requests */
-#define CDC_I2C_REQ_INIT_PORT       1		/*!< Request to initialize the I2C port */
-#define CDC_I2C_REQ_DEINIT_PORT     2		/*!< Request to de-initialize the I2C port */
-#define CDC_I2C_REQ_DEVICE_WRITE    3		/*!< Request to write data to the I2C port */
-#define CDC_I2C_REQ_DEVICE_READ     4		/*!< Request to read data from the I2C port */
-#define CDC_I2C_REQ_DEVICE_XFER     5		/*!< Request to write and then read data from the I2C port */
+#define CDC_I2C_REQ_RESET           0xa0		/*!< Request to abort and flush all pending requests */
+#define CDC_I2C_REQ_INIT_PORT       0xa1		/*!< Request to initialize the I2C port */
+#define CDC_I2C_REQ_DEINIT_PORT     0xa2		/*!< Request to de-initialize the I2C port */
+#define CDC_I2C_REQ_DEVICE_WRITE    0xa3		/*!< Request to write data to the I2C port */
+#define CDC_I2C_REQ_DEVICE_READ     0xa4		/*!< Request to read data from the I2C port */
+#define CDC_I2C_REQ_DEVICE_XFER     0xa5		/*!< Request to write and then read data from the I2C port */
 
 /**
  * @brief	CDC to I2C bridge Request structure.
