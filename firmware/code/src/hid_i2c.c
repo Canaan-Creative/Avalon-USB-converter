@@ -41,7 +41,6 @@
 /*****************************************************************************
  * Private types/enumerations/variables
  ****************************************************************************/
-
 #define HID_I2C_STATE_DISCON        0
 #define HID_I2C_STATE_CONNECTED     1
 
@@ -170,9 +169,12 @@ static ErrorCode_t HID_I2C_EpOut_Hdlr(USBD_HANDLE_T hUsb, void *data, uint32_t e
 
 static uint32_t HID_I2C_StatusCheckLoop(HID_I2C_CTRL_T *pHidI2c)
 {
+	uint8_t try = 0;
+
 	/* wait for status change interrupt */
 	while ( (Chip_I2CM_StateChanged(pHidI2c->pI2C) == 0) &&
-			(pHidI2c->resetReq == 0)) {
+			(pHidI2c->resetReq == 0) &&
+			(try++ < 200)) {
 		/* loop */
 	}
 	return pHidI2c->resetReq;
