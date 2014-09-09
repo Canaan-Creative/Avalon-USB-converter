@@ -51,8 +51,8 @@ ALIGNED(4) const uint8_t USB_DeviceDescriptor[] = {
 	0x02,								/* bDeviceSubClass */
 	0x01,								/* bDeviceProtocol */
 	USB_MAX_PACKET0,					/* bMaxPacketSize0 */
-	WBVAL(0x1FC9),						/* idVendor */
-	WBVAL(0x0083),						/* idProduct */
+	WBVAL(0x29F1),						/* idVendor */
+	WBVAL(0x33F2),						/* idProduct */
 	WBVAL(0x0100),						/* bcdDevice */
 	0x01,								/* iManufacturer */
 	0x02,								/* iProduct */
@@ -171,32 +171,39 @@ ALIGNED(4) const uint8_t USB_StringDescriptor[] = {
 	USB_STRING_DESCRIPTOR_TYPE,			/* bDescriptorType */
 	WBVAL(0x0409),	/* US English */    /* wLANGID */
 	/* Index 0x01: Manufacturer */
-	(3 * 2 + 2),						/* bLength (13 Char + Type + lenght) */
+	(5 * 2 + 2),						/* bLength (13 Char + Type + lenght) */
 	USB_STRING_DESCRIPTOR_TYPE,			/* bDescriptorType */
-	'N', 0,
-	'X', 0,
-	'P', 0,
-	/* Index 0x02: Product */
-	(9 * 2 + 2),						/* bLength */
-	USB_STRING_DESCRIPTOR_TYPE,			/* bDescriptorType */
+	'A', 0,
 	'V', 0,
+	'A', 0,
+	'L', 0,
+	'O', 0,
+	'N', 0,
+	/* Index 0x02: Product */
+	(13 * 2 + 2),						/* bLength */
+	USB_STRING_DESCRIPTOR_TYPE,			/* bDescriptorType */
+	'U', 0,
+	'S', 0,
+	'B', 0,
+	' ', 0,
 	'C', 0,
 	'O', 0,
-	'M', 0,
-	' ', 0,
-	'P', 0,
-	'o', 0,
-	'r', 0,
-	't', 0,
+	'N', 0,
+	'V', 0,
+	'E', 0,
+	'R', 0,
+	'T', 0,
+	'E', 0,
+	'R', 0,
 	/* Index 0x03: Serial Number */
 	(6 * 2 + 2),						/* bLength (8 Char + Type + lenght) */
 	USB_STRING_DESCRIPTOR_TYPE,			/* bDescriptorType */
+	'A', 0,
+	'V', 0,
+	'A', 0,
+	'L', 0,
+	'O', 0,
 	'N', 0,
-	'X', 0,
-	'P', 0,
-	'-', 0,
-	'7', 0,
-	'7', 0,
 	/* Index 0x04: Interface 1, Alternate Setting 0 */
 	( 4 * 2 + 2),						/* bLength (4 Char + Type + lenght) */
 	USB_STRING_DESCRIPTOR_TYPE,			/* bDescriptorType */
