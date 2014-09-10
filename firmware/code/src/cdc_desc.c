@@ -47,9 +47,9 @@ ALIGNED(4) const uint8_t USB_DeviceDescriptor[] = {
 	USB_DEVICE_DESC_SIZE,				/* bLength */
 	USB_DEVICE_DESCRIPTOR_TYPE,			/* bDescriptorType */
 	WBVAL(0x0200),						/* bcdUSB */
-	0xEF,								/* bDeviceClass */
-	0x02,								/* bDeviceSubClass */
-	0x01,								/* bDeviceProtocol */
+	0xFF,								/* bDeviceClass */
+	0x00,								/* bDeviceSubClass */
+	0x02,								/* bDeviceProtocol */
 	USB_MAX_PACKET0,					/* bMaxPacketSize0 */
 	WBVAL(0x29F1),						/* idVendor */
 	WBVAL(0x33F2),						/* idProduct */
@@ -81,8 +81,8 @@ ALIGNED(4) uint8_t USB_FsConfigDescriptor[] = {
 	0x02,									/* bNumInterfaces */
 	0x01,									/* bConfigurationValue */
 	0x00,									/* iConfiguration */
-	USB_CONFIG_SELF_POWERED,				/* bmAttributes  */
-	USB_CONFIG_POWER_MA(500),				/* bMaxPower */
+	USB_CONFIG_BUS_POWERED,					/* bmAttributes  */
+	USB_CONFIG_POWER_MA(100),				/* bMaxPower */
 
 	/* Interface association descriptor IAD*/
 	USB_INTERFACE_ASSOC_DESC_SIZE,		/* bLength */
@@ -90,7 +90,7 @@ ALIGNED(4) uint8_t USB_FsConfigDescriptor[] = {
 	USB_CDC_CIF_NUM,					/* bFirstInterface */
 	0x02,								/* bInterfaceCount */
 	CDC_COMMUNICATION_INTERFACE_CLASS,	/* bFunctionClass */
-	CDC_ABSTRACT_CONTROL_MODEL,			/* bFunctionSubClass */
+	0xFE,								/* bFunctionSubClass */
 	0x00,								/* bFunctionProtocol */
 	0x04,								/* iFunction */
 
@@ -101,7 +101,7 @@ ALIGNED(4) uint8_t USB_FsConfigDescriptor[] = {
 	0x00,								/* bAlternateSetting: Alternate setting */
 	0x01,								/* bNumEndpoints: One endpoint used */
 	CDC_COMMUNICATION_INTERFACE_CLASS,	/* bInterfaceClass: Communication Interface Class */
-	CDC_ABSTRACT_CONTROL_MODEL,			/* bInterfaceSubClass: Abstract Control Model */
+	0xFE,								/* bInterfaceSubClass: Abstract Control Model */
 	0x00,								/* bInterfaceProtocol: no protocol used */
 	0x04,								/* iInterface: */
 	/* Header Functional Descriptor*/
