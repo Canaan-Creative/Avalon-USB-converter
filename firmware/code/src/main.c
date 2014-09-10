@@ -34,6 +34,7 @@
 #include <string.h>
 #include "app_usbd_cfg.h"
 #include "cdc_i2c.h"
+#include "uart.h"
 
 #ifdef __CODE_RED
 #include <cr_section_macros.h>
@@ -152,7 +153,6 @@ int main(void)
 	/* Initialize board and chip */
 	Board_Init();
 	UART_Init();
-	AVALON_TMR_Init();
 
 	/* enable clocks and pinmux */
 	usb_pin_clk_init();

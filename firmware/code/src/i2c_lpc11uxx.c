@@ -28,10 +28,12 @@
  * copyright, permission, and disclaimer notice must appear in all copies of
  * this code.
  */
+#include <string.h>
 
 #include "chip.h"
 #include "i2c_lpc11uxx.h"
 #include "avalon_api.h"
+
 
 /*****************************************************************************
  * Private types/enumerations/variables
@@ -39,14 +41,6 @@
 
 /* Control flags */
 #define I2C_CON_FLAGS (I2C_CON_AA | I2C_CON_SI | I2C_CON_STO | I2C_CON_STA)
-
-#undef DEBUGOUT
-#define DEBUGOUT(...) {		\
-		char str[255];						\
-		memset(str, 0, 255);				\
-		m_sprintf(str, __VA_ARGS__);		\
-		UART_Write((uint8_t*)str,strlen(str));	\
-	}
 
 /*****************************************************************************
  * Public types/enumerations/variables
@@ -275,8 +269,8 @@ void Chip_I2CM_Test(void)
 #define I2C_DEVADDR			0
 #define I2C_DATSIZE			40
 
-	char	rxdat[I2C_DATSIZE], txdat[I2C_DATSIZE];
-	int	rxsize, verifyok, i, txsize, ret;
+	uint8_t	rxdat[I2C_DATSIZE], txdat[I2C_DATSIZE];
+	int	rxsize, verifyok, i, ret;
 	I2CM_XFER_T xfer;
 
 	Chip_SYSCTL_PeriphReset(RESET_I2C0);
@@ -324,10 +318,9 @@ void Chip_I2CM_Test(void)
 	xfer.txSz = I2C_DATSIZE;
 	xfer.options = 0;
 	ret = Chip_I2CM_XferBlocking(LPC_I2C, &xfer);
-	if (ret) {
-		txsize = I2C_DATSIZE - xfer.txSz;
-		DEBUGOUT("ACK Write: Finish (%d)\r\n", txsize);
-	} else
+	if (ret)
+		DEBUGOUT("ACK Write: Finish (%d)\r\n", I2C_DATSIZE - xfer.txSz;);
+	else
 		DEBUGOUT("ACK Write: Failed \r\n");
 
 	verifyok = 0;

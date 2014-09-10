@@ -421,12 +421,6 @@ ErrorCode_t CDC_I2C_init(USBD_HANDLE_T hUsb,
 	return ret;
 }
 
-static unsigned int timecnt = 0;
-static void AVALON_TMRID1_Fun(void)
-{
-	timecnt++;
-}
-
 /* Process CDC_I2C request and response queue. */
 void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 {
