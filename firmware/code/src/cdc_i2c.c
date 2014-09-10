@@ -328,8 +328,7 @@ static void CDC_I2C_HandleXferReq(CDC_I2C_CTRL_T *pCDCI2c,
 		if (CDC_I2C_StatusCheckLoop(pCDCI2c) == 0) {
 			/* call state change handler */
 			ret = Chip_I2CM_XferHandler(pCDCI2c->pI2C, &xfer);
-		}
-		else {
+		} else {
 			xfer.status = CDC_I2C_RES_ERROR;
 			break;
 		}
@@ -338,12 +337,14 @@ static void CDC_I2C_HandleXferReq(CDC_I2C_CTRL_T *pCDCI2c,
 	/* Update the length we have to send back */
 	if ((pXfrParam->rxLength - xfer.rxSz) > 0) {
 		pIn->length += pXfrParam->rxLength - xfer.rxSz;
-		DEBUGOUT("In(0x%02x,0x%02x), Out(0x%02x,0x%02x)\r\n", pIn->data[0], pIn->data[1], pXfrParam->rxLength, pXfrParam->txLength);
+		DEBUGOUT("In(0x%02x,0x%02x), Out(0x%02x,0x%02x)\n",
+				pIn->data[0], pIn->data[1], pXfrParam->rxLength, pXfrParam->txLength);
 	}
 
 	/* update response with the I2CM status returned. No translation
 	   needed as they map directly to base LPCUSBSIO status. */
 	pIn->resp = xfer.status;
+	DEBUGOUT("pIn->resp: %d\n", pIn->resp);
 }
 
 /* Set line coding call back routine */
@@ -443,7 +444,12 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 			pIn->sesId = pOut->sesId;
 			pIn->resp = CDC_I2C_RES_INVALID_CMD;
 
-			DEBUGOUT("pOut->req = 0x%02x\r\n", pOut->req);
+			DEBUGOUT("pOut: req: 0x%02x, len: %d\n",
+						pOut->req, pOut->length);
+
+			DEBUGOUT("data[0-4]: 0x%02x 0x%02x 0x%02x 0x%02x, data[6]: 0x%02x\n",
+						pOut->data[0], pOut->data[1], pOut->data[2], pOut->data[3], pOut->data[6]);
+
 			switch (pOut->req) {
 			case CDC_I2C_REQ_INIT_PORT:
 				/* Init I2C port */
@@ -493,12 +499,12 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 			if ((pCDCI2c->tx_flags & CDC_I2C_TX_BUSY) == 0) {
 				pCDCI2c->tx_flags |= CDC_I2C_TX_BUSY;
 				len = pCDCI2c->respQ[pCDCI2c->respRdIndx][0];
+				DEBUGOUT("QUEUE: len:%d, %02x\n", len, pCDCI2c->respQ[pCDCI2c->respRdIndx][0]);
 				USBD_API->hw->WriteEP(pCDCI2c->hUsb, pCDCI2c->epin_adr, &pCDCI2c->respQ[pCDCI2c->respRdIndx][0], len);
 				CDC_I2C_IncIndex(&pCDCI2c->respRdIndx);
 			}
 		}
-	}
-	else {
+	} else {
 		/* check if we just got dis-connected */
 		if (pCDCI2c->state != CDC_I2C_STATE_DISCON) {
 			/* reset indexes */

@@ -187,17 +187,13 @@ int main(void)
 	/* USB Initialization */
 	ret = USBD_API->hw->Init(&g_hUsb, &desc, &usb_param);
 	if (ret == LPC_OK) {
-		ret =
-			CDC_I2C_init(g_hUsb,
-						 &desc,
-						 &usb_param, LPC_I2C, &hCDC_I2C0);
+		ret = CDC_I2C_init(g_hUsb, &desc, &usb_param, LPC_I2C, &hCDC_I2C0);
 		if (ret == LPC_OK) {
 			/*  enable USB interrupts */
 			NVIC_EnableIRQ(USB0_IRQn);
 			/* now connect */
 			USBD_API->hw->Connect(g_hUsb, 1);
 		}
-
 	}
 
 	while (1) {
