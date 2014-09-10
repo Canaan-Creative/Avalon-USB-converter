@@ -319,7 +319,7 @@ void Chip_I2CM_Test(void)
 	xfer.options = 0;
 	ret = Chip_I2CM_XferBlocking(LPC_I2C, &xfer);
 	if (ret)
-		DEBUGOUT("ACK Write: Finish (%d)\r\n", I2C_DATSIZE - xfer.txSz;);
+		DEBUGOUT("ACK Write: Finish (%d)\r\n", I2C_DATSIZE - xfer.txSz);
 	else
 		DEBUGOUT("ACK Write: Failed \r\n");
 

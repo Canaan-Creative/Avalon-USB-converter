@@ -47,14 +47,6 @@
 STATIC RINGBUFF_T uart_rxrb, uart_txrb;
 static uint8_t uart_rxbuff[UART_RX_BUF_SZ], uart_txbuff[UART_TX_BUF_SZ];
 
-/*****************************************************************************
- * Public types/enumerations/variables
- ****************************************************************************/
-
-/*****************************************************************************
- * Private functions
- ****************************************************************************/
-
 static void Init_UART_PinMux(void)
 {
 #if (defined(BOARD_NXP_XPRESSO_11U14) || defined(BOARD_NGX_BLUEBOARD_11U24))
