@@ -336,9 +336,11 @@ static void CDC_I2C_HandleXferReq(CDC_I2C_CTRL_T *pCDCI2c,
 
 	/* Update the length we have to send back */
 	if ((pXfrParam->rxLength - xfer.rxSz) > 0) {
+		DEBUGOUT("pIn->length: 0x%02x, pXfrParam->rxLength: 0x%02x, xfer.rxSz: 0x%02x\n", pIn->length, pXfrParam->rxLength, xfer.rxSz);
 		pIn->length += pXfrParam->rxLength - xfer.rxSz;
-		DEBUGOUT("In(0x%02x,0x%02x), Out(0x%02x,0x%02x)\n",
-				pIn->data[0], pIn->data[1], pXfrParam->rxLength, pXfrParam->txLength);
+		DEBUGOUT("pIn->length: 0x%02x, pIn->data: 0x%02x 0x%02x 0x%02x, xfer:0x%02x 0x%02x 0x%02x 0x%02x\n",
+				pIn->length, pIn->data[0], pIn->data[1], pIn->data[2],
+				pXfrParam->rxLength, pXfrParam->txLength, pXfrParam->options, pXfrParam->slaveAddr);
 	}
 
 	/* update response with the I2CM status returned. No translation
@@ -444,10 +446,9 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 			pIn->sesId = pOut->sesId;
 			pIn->resp = CDC_I2C_RES_INVALID_CMD;
 
-			DEBUGOUT("pOut: req: 0x%02x, len: %d\n",
+			DEBUGOUT("\n\npOut: req: 0x%02x, len: 0x%02x;",
 						pOut->req, pOut->length);
-
-			DEBUGOUT("data[0-4]: 0x%02x 0x%02x 0x%02x 0x%02x, data[6]: 0x%02x\n",
+			DEBUGOUT(" xfer[0-4]: 0x%02x 0x%02x 0x%02x 0x%02x, data[6]: 0x%02x\n",
 						pOut->data[0], pOut->data[1], pOut->data[2], pOut->data[3], pOut->data[6]);
 
 			switch (pOut->req) {
@@ -499,7 +500,11 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 			if ((pCDCI2c->tx_flags & CDC_I2C_TX_BUSY) == 0) {
 				pCDCI2c->tx_flags |= CDC_I2C_TX_BUSY;
 				len = pCDCI2c->respQ[pCDCI2c->respRdIndx][0];
-				DEBUGOUT("QUEUE: len:%d, %02x\n", len, pCDCI2c->respQ[pCDCI2c->respRdIndx][0]);
+				DEBUGOUT("resqQ: 0x%02x 0x%02x 0x%02x 0x%02x\n",
+						pCDCI2c->respQ[pCDCI2c->respRdIndx][0],
+						pCDCI2c->respQ[pCDCI2c->respRdIndx][1],
+						pCDCI2c->respQ[pCDCI2c->respRdIndx][2],
+						pCDCI2c->respQ[pCDCI2c->respRdIndx][3]);
 				USBD_API->hw->WriteEP(pCDCI2c->hUsb, pCDCI2c->epin_adr, &pCDCI2c->respQ[pCDCI2c->respRdIndx][0], len);
 				CDC_I2C_IncIndex(&pCDCI2c->respRdIndx);
 			}
