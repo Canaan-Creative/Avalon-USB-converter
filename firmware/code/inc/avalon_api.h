@@ -39,26 +39,21 @@ extern "C"
 {
 #endif
 
-/* 1ms/100 */
-#define TICKRATE_AVALON (100000)
+#define AVALON_LED_RED		0
+#define AVALON_LED_GREEN 	1
+#define AVALON_LED_BLUE		2
+#define AVALON_LED_BLACK	3
+#define AVALON_LED_WHITE	4
 
-typedef void (*TMRPROC)(void);
+extern void AVALON_LED_Init(void);
+extern void AVALON_LED_Rgb(unsigned int rgb);
+extern void AVALON_LED_Test(void);
 
-typedef enum {
-	AVALON_TMR_ID1,
-	AVALON_TMR_ID2,
-	AVALON_TMR_ID3,
-	AVALON_TMR_ID4,
-	AVALON_TMR_MAX
-} AVALON_TMR_e;
-
-/* timer */
-void AVALON_TMR_Init(void);
-void AVALON_TMR_Set(AVALON_TMR_e id, unsigned int interval, TMRPROC tmrcb);
-void AVALON_TMR_Kill(AVALON_TMR_e id);
-AVALON_TMR_e AVALON_TMR_GetReady(void);
-Bool AVALON_TMR_IsTimeout(AVALON_TMR_e id);
-void AVALON_TMR_Test(void);
+static void AVALON_Delay(unsigned int max)
+{
+	volatile unsigned int i;
+	for(i = 0; i < max; i++);
+}
 
 /**
  * @}
