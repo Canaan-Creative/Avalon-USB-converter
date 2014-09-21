@@ -49,6 +49,9 @@ extern void AVALON_LED_Init(void);
 extern void AVALON_LED_Rgb(unsigned int rgb);
 extern void AVALON_LED_Test(void);
 
+void AVALON_ADC_Init(void);
+extern uint16_t AVALON_Temp_Rd(void);
+
 static void AVALON_Delay(unsigned int max)
 {
 	volatile unsigned int i;

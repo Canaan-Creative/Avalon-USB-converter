@@ -32,6 +32,7 @@
 #include "board.h"
 #include <stdio.h>
 #include <string.h>
+#include "avalon_api.h"
 
 #ifdef __CODE_RED
 #include <cr_section_macros.h>
@@ -65,8 +66,10 @@ int main(void)
 {
 	/* Initialize board and chip */
 	Board_Init();
+	AVALON_ADC_Init();
 
 	while (1) {
+		DEBUGOUT("AVALON_Temp_Rd temp = %d\n", AVALON_Temp_Rd());
 		AVALON_LED_Test();
 	}
 }
