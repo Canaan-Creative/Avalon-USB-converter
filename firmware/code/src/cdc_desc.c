@@ -42,14 +42,15 @@
 
 /**
  * USB Standard Device Descriptor
+ * http://www.usb.org/developers/defined_class
  */
 ALIGNED(4) const uint8_t USB_DeviceDescriptor[] = {
 	USB_DEVICE_DESC_SIZE,				/* bLength */
 	USB_DEVICE_DESCRIPTOR_TYPE,			/* bDescriptorType */
 	WBVAL(0x0200),						/* bcdUSB */
-	0xFF,								/* bDeviceClass */
-	0x00,								/* bDeviceSubClass */
-	0x02,								/* bDeviceProtocol */
+	0xEF,								/* bDeviceClass */
+	0x02,								/* bDeviceSubClass */
+	0x01,								/* bDeviceProtocol */
 	USB_MAX_PACKET0,					/* bMaxPacketSize0 */
 	WBVAL(0x29F1),						/* idVendor */
 	WBVAL(0x33F2),						/* idProduct */
@@ -63,6 +64,7 @@ ALIGNED(4) const uint8_t USB_DeviceDescriptor[] = {
 /**
  * USB FSConfiguration Descriptor
  * All Descriptors (Configuration, Interface, Endpoint, Class, Vendor)
+ * http://www.beyondlogic.org/usbnutshell/usb5.shtml#ConfigurationDescriptors
  */
 ALIGNED(4) uint8_t USB_FsConfigDescriptor[] = {
 	/* Configuration 1 */
