@@ -154,6 +154,9 @@ int main(void)
 	Board_Init();
 	UART_Init();
 
+	/* Initialize avalon functions */
+	AVALON_ADC_Init();
+
 	/* enable clocks and pinmux */
 	usb_pin_clk_init();
 

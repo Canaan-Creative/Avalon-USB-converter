@@ -60,6 +60,10 @@ AVALON_TMR_e AVALON_TMR_GetReady(void);
 Bool AVALON_TMR_IsTimeout(AVALON_TMR_e id);
 void AVALON_TMR_Test(void);
 
+/* adc */
+void AVALON_ADC_Init(void);
+uint16_t AVALON_Temp_Rd(void);
+
 /**
  * @}
  */

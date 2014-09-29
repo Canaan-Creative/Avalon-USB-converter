@@ -432,6 +432,8 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 	CDC_I2C_IN_REPORT_T *pIn;
 	CDC_I2C_PORTCONFIG_T *pCfg;
 	uint16_t len;
+	uint16_t temp;
+	uint8_t reqcnt, respcnt;
 
 	if (USB_IsConfigured(pCDCI2c->hUsb)) {
 		/* set state to connected */
@@ -488,6 +490,34 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 				Chip_I2CM_WriteByte(pCDCI2c->pI2C, 0xFF);
 				Chip_I2CM_SendStop(pCDCI2c->pI2C);
 				pCDCI2c->resetReq = 0;
+				break;
+
+            case CDC_I2C_REQ_DEVICE_INFO:
+				temp = AVALON_Temp_Rd();
+
+				pIn->data[0] = temp & 0xff;
+				pIn->data[1] = temp >> 8;
+
+				if (pCDCI2c->reqWrIndx >= pCDCI2c->reqRdIndx)
+					reqcnt = pCDCI2c->reqWrIndx - pCDCI2c->reqRdIndx;
+				else
+					reqcnt = CDC_I2C_MAX_PACKETS - (pCDCI2c->reqRdIndx - pCDCI2c->reqWrIndx);
+
+				memcpy(&pIn->data[2], &reqcnt, 1);
+
+				if (pCDCI2c->respWrIndx >= pCDCI2c->respRdIndx)
+					respcnt = pCDCI2c->respWrIndx - pCDCI2c->respRdIndx;
+				else
+					respcnt = CDC_I2C_MAX_PACKETS - (pCDCI2c->respRdIndx - pCDCI2c->respWrIndx);
+				respcnt += 1;
+
+				memcpy(&pIn->data[3], &respcnt, 1);
+				pIn->data[4] = pCDCI2c->tx_flags & 0xff;
+				pIn->data[5] = pCDCI2c->tx_flags >> 8;
+				memcpy(&pIn->data[6], &pCDCI2c->state, 1);
+				pIn->length += 7;
+
+				pIn->resp = CDC_I2C_RES_OK;
 				break;
 			}
 

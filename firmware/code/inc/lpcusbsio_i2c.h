@@ -58,6 +58,7 @@ extern "C"
 #define CDC_I2C_REQ_DEVICE_WRITE    0xa3		/*!< Request to write data to the I2C port */
 #define CDC_I2C_REQ_DEVICE_READ     0xa4		/*!< Request to read data from the I2C port */
 #define CDC_I2C_REQ_DEVICE_XFER     0xa5		/*!< Request to write and then read data from the I2C port */
+#define CDC_I2C_REQ_DEVICE_INFO     0xa6		/*!< Request to get device information */
 
 /**
  * @brief	CDC to I2C bridge Request structure.
