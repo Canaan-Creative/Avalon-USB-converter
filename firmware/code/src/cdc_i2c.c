@@ -146,11 +146,9 @@ static ErrorCode_t CDC_I2C_EpOut_Hdlr(USBD_HANDLE_T hUsb, void *data, uint32_t e
 
 static uint32_t CDC_I2C_StatusCheckLoop(CDC_I2C_CTRL_T *pCDCI2c)
 {
-	uint8_t try = 0;
-
 	/* wait for status change interrupt */
-	while ( (Chip_I2CM_StateChanged(pCDCI2c->pI2C) == 0) &&
-			(pCDCI2c->resetReq == 0) && (try++ < 200)) {
+	while ((Chip_I2CM_StateChanged(pCDCI2c->pI2C) == 0) &&
+			(pCDCI2c->resetReq == 0)) {
 		/* loop */
 	}
 	return pCDCI2c->resetReq;

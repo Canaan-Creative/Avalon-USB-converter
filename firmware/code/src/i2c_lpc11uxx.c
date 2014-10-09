@@ -100,6 +100,7 @@ uint32_t Chip_I2CM_XferHandler(LPC_I2C_T *pI2C, I2CM_XFER_T *xfer)
 		if (!xfer->txSz) {
 			if (xfer->rxSz) {
 				cclr &= ~I2C_CON_STA;
+				int count = 100; while (count--);
 			}
 			else {
 				xfer->status = I2CM_STATUS_OK;
