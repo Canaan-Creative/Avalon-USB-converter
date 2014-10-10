@@ -81,6 +81,8 @@ extern "C" {
 #define I2CM_STATUS_ARBLOST         0x05		/*!< Arbitration lost. */
 #define I2CM_STATUS_BUSY            0xFF		/*!< I2C transmistter is busy. */
 
+#define I2CM_XFER_DELAY_DEFAULT		4800		/* 0.1ms delay for mm data xfer, best val:360 */
+
 /**
  * @}
  */
@@ -405,6 +407,12 @@ uint32_t Chip_I2CM_Write(LPC_I2C_T *pI2C, const uint8_t *buff, uint32_t len);
  *          S [Data0] A [Data1] A ... [DataN] A
  */
 uint32_t Chip_I2CM_Read(LPC_I2C_T *pI2C, uint8_t *buff, uint32_t len);
+
+/**
+ * @brief Set Xfer delay val.0.1ms delay for mm data xfer, best val:360
+ * @param val	: delay val(0-4294967295)
+ */
+void Chip_I2CM_SetXferDelay(LPC_I2C_T *pI2C, uint32_t val);
 
 /**
  * @}

@@ -42,6 +42,8 @@
 /* Control flags */
 #define I2C_CON_FLAGS (I2C_CON_AA | I2C_CON_SI | I2C_CON_STO | I2C_CON_STA)
 
+static uint32_t gxfer_delay = I2CM_XFER_DELAY_DEFAULT;
+
 /*****************************************************************************
  * Public types/enumerations/variables
  ****************************************************************************/
@@ -101,7 +103,7 @@ uint32_t Chip_I2CM_XferHandler(LPC_I2C_T *pI2C, I2CM_XFER_T *xfer)
 			if (xfer->rxSz) {
 				cclr &= ~I2C_CON_STA;
 				/* 0.1ms delay for mm data xfer, best val:360 */
-				int count = 4800; while (count--) { __NOP();};
+				int count = gxfer_delay; while (count--) { __NOP();};
 			}
 			else {
 				xfer->status = I2CM_STATUS_OK;
@@ -258,6 +260,15 @@ uint32_t Chip_I2CM_Read(LPC_I2C_T *pI2C, uint8_t *buff, uint32_t len)
 	}
 
 	return rxLen;
+}
+
+void Chip_I2CM_SetXferDelay(LPC_I2C_T *pI2C, uint32_t val)
+{
+	/* compatible with old version */
+	if (val == 0)
+		val = I2CM_XFER_DELAY_DEFAULT;
+
+	gxfer_delay = val;
 }
 
 static unsigned int timecnt = 0;

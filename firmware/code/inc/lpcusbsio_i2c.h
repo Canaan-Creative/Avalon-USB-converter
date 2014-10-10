@@ -106,7 +106,7 @@ typedef struct __CDCI2C_IN_REPORT {
  */
 typedef struct __CDCI2C_PortConfig_t {
 	uint32_t busSpeed;	/*!< I2C bus speed */
-	uint32_t Options;	/*!< Configuration options */
+	uint32_t xferDelay;	/*!< Xfer delay */
 } CDC_I2C_PORTCONFIG_T;
 
 /** I2C_IO_OPTIONS Options to I2C_DeviceWrite & I2C_DeviceRead routines

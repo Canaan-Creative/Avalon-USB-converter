@@ -457,6 +457,7 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 				Chip_I2CM_Init(pCDCI2c->pI2C);
 				pCfg = (CDC_I2C_PORTCONFIG_T *) &pOut->data[0];
 				Chip_I2CM_SetBusSpeed(pCDCI2c->pI2C, pCfg->busSpeed);
+				Chip_I2CM_SetXferDelay(pCDCI2c->pI2C, pCfg->xferDelay);
 
 				/* TBD. Change I2C0 pads modes per bus speed requested. Do we need to?*/
 				/* send back firmware version string */
