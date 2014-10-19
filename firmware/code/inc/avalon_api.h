@@ -64,6 +64,21 @@ void AVALON_TMR_Test(void);
 void AVALON_ADC_Init(void);
 uint16_t AVALON_Temp_Rd(void);
 
+/* led */
+#define AVALON_LED_RED		0
+#define AVALON_LED_GREEN 	1
+#define AVALON_LED_BLUE		2
+
+extern void AVALON_LED_Init(void);
+extern void AVALON_LED_Rgb(unsigned int rgb, bool on);
+extern void AVALON_LED_Test(void);
+
+static void AVALON_Delay(unsigned int max)
+{
+	volatile unsigned int i;
+	for(i = 0; i < max; i++);
+}
+
 /**
  * @}
  */

@@ -156,6 +156,7 @@ int main(void)
 
 	/* Initialize avalon functions */
 	AVALON_ADC_Init();
+	AVALON_LED_Init();
 
 	/* enable clocks and pinmux */
 	usb_pin_clk_init();

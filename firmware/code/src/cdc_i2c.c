@@ -67,7 +67,7 @@ typedef struct __HID_I2C_CTRL_T {
 	uint8_t respQ[CDC_I2C_MAX_PACKETS][CDC_I2C_PACKET_SZ];	/*!< Response queue */
 } CDC_I2C_CTRL_T;
 
-static const char *g_fwVersion = "AUC-20140929";
+static const char *g_fwVersion = "AUC-20141019";
 
 /*****************************************************************************
  * Public types/enumerations/variables
@@ -466,21 +466,27 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 
 				/* update response */
 				pIn->resp = CDC_I2C_RES_OK;
+				AVALON_LED_Rgb(AVALON_LED_BLUE, true);
 				break;
 
 			case CDC_I2C_REQ_DEINIT_PORT:
 				Chip_I2CM_DeInit(pCDCI2c->pI2C);
 				/* update response */
+				AVALON_LED_Rgb(AVALON_LED_BLUE, false);
 				pIn->resp = CDC_I2C_RES_OK;
 				break;
 
 			case CDC_I2C_REQ_DEVICE_WRITE:
 			case CDC_I2C_REQ_DEVICE_READ:
+				AVALON_LED_Rgb(AVALON_LED_GREEN, true);
 				CDC_I2C_HandleRWReq(pCDCI2c, pOut, pIn, (pOut->req == CDC_I2C_REQ_DEVICE_READ));
+				AVALON_LED_Rgb(AVALON_LED_GREEN, false);
 				break;
 
 			case CDC_I2C_REQ_DEVICE_XFER:
+				AVALON_LED_Rgb(AVALON_LED_GREEN, true);
 				CDC_I2C_HandleXferReq(pCDCI2c, pOut, pIn);
+				AVALON_LED_Rgb(AVALON_LED_GREEN, false);
 				break;
 
 			case CDC_I2C_REQ_RESET:
@@ -520,6 +526,12 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 				break;
 			}
 
+			if (pIn->resp != CDC_I2C_RES_OK) {
+				AVALON_LED_Rgb(AVALON_LED_RED, true);
+				DEBUGOUT("pIn->resp err = %d\n", pIn->resp);
+			} else
+				AVALON_LED_Rgb(AVALON_LED_RED, false);
+
 			CDC_I2C_IncIndex(&pCDCI2c->reqRdIndx);
 			CDC_I2C_IncIndex(&pCDCI2c->respWrIndx);
 		}
@@ -546,6 +558,7 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 			pCDCI2c->respRdIndx = pCDCI2c->respWrIndx = 0;
 			pCDCI2c->resetReq = 0;
 		}
+		AVALON_LED_Rgb(AVALON_LED_BLUE, false);
 		pCDCI2c->state = CDC_I2C_STATE_DISCON;
 	}
 }
