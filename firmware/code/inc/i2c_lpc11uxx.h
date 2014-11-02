@@ -81,7 +81,7 @@ extern "C" {
 #define I2CM_STATUS_ARBLOST         0x05		/*!< Arbitration lost. */
 #define I2CM_STATUS_BUSY            0xFF		/*!< I2C transmistter is busy. */
 
-#define I2CM_XFER_DELAY_DEFAULT		4800		/* 0.1ms delay for mm data xfer, best val:360 */
+#define I2CM_XFER_DELAY_DEFAULT		9600		/* 0.1ms delay for mm data xfer, best val:360 */
 
 /**
  * @}

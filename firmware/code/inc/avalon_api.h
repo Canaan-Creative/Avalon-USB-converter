@@ -69,15 +69,22 @@ uint16_t AVALON_Temp_Rd(void);
 #define AVALON_LED_GREEN 	1
 #define AVALON_LED_BLUE		2
 
-extern void AVALON_LED_Init(void);
-extern void AVALON_LED_Rgb(unsigned int rgb, bool on);
-extern void AVALON_LED_Test(void);
+void AVALON_LED_Init(void);
+void AVALON_LED_Rgb(unsigned int rgb, bool on);
+void AVALON_LED_Test(void);
 
-static void AVALON_Delay(unsigned int max)
-{
-	volatile unsigned int i;
-	for(i = 0; i < max; i++);
-}
+/* watchdog */
+void AVALON_WDT_Init(uint8_t second);
+void AVALON_WDT_Enable(void);
+void AVALON_WDT_Feed(void);
+void AVALON_WDT_Test(void);
+
+#define AVALON_Delay(max) \
+	do {								\
+		volatile unsigned int i = (max);	\
+		while (i--)						\
+			__NOP();					\
+	} while(0)
 
 /**
  * @}

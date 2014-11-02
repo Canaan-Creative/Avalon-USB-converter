@@ -83,8 +83,8 @@ ALIGNED(4) uint8_t USB_FsConfigDescriptor[] = {
 	0x02,									/* bNumInterfaces */
 	0x01,									/* bConfigurationValue */
 	0x00,									/* iConfiguration */
-	USB_CONFIG_BUS_POWERED,					/* bmAttributes  */
-	USB_CONFIG_POWER_MA(100),				/* bMaxPower */
+	USB_CONFIG_SELF_POWERED,				/* bmAttributes  */
+	USB_CONFIG_POWER_MA(500),				/* bMaxPower */
 
 	/* Interface association descriptor IAD*/
 	USB_INTERFACE_ASSOC_DESC_SIZE,		/* bLength */
@@ -209,9 +209,9 @@ ALIGNED(4) const uint8_t USB_StringDescriptor[] = {
 	'1', 0,
 	'4', 0,
 	'1', 0,
+	'1', 0,
 	'0', 0,
 	'2', 0,
-	'7', 0,
 	/* Index 0x04: Interface 1, Alternate Setting 0 */
 	(2 * 2 + 2),						/* bLength (2 Char + Type + lenght) */
 	USB_STRING_DESCRIPTOR_TYPE,			/* bDescriptorType */

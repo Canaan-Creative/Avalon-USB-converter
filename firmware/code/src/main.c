@@ -35,6 +35,7 @@
 #include "app_usbd_cfg.h"
 #include "cdc_i2c.h"
 #include "uart.h"
+#include "avalon_api.h"
 
 #ifdef __CODE_RED
 #include <cr_section_macros.h>
@@ -153,10 +154,7 @@ int main(void)
 	/* Initialize board and chip */
 	Board_Init();
 	UART_Init();
-
-	/* Initialize avalon functions */
-	AVALON_ADC_Init();
-	AVALON_LED_Init();
+	DEBUGOUT("AUC Debug Version\n");
 
 	/* enable clocks and pinmux */
 	usb_pin_clk_init();
@@ -196,12 +194,28 @@ int main(void)
 			/*  enable USB interrupts */
 			NVIC_EnableIRQ(USB0_IRQn);
 			/* now connect */
-			USBD_API->hw->Connect(g_hUsb, 1);
+			USBD_API->hw->Connect(g_hUsb, 0);
+			/* delay for host detect */
+			AVALON_Delay(48 * 1000 * 100);
+		} else {
+			DEBUGOUT("CDC_I2C_init ret= %d\n", ret);
 		}
+	} else {
+		DEBUGOUT("USBD_API->hw->Init ret= %d\n", ret);
 	}
+
+	DEBUGOUT("AUC Debug Version running\n");
+	/* Initialize avalon functions */
+	AVALON_ADC_Init();
+	AVALON_LED_Init();
+	AVALON_WDT_Init(5);
+	AVALON_WDT_Enable();
+
+	/* now connect */
+	USBD_API->hw->Connect(g_hUsb, 1);
 
 	while (1) {
 		CDC_I2C_process(hCDC_I2C0);
-		__WFI();
+		AVALON_WDT_Feed();
 	}
 }
