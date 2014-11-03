@@ -154,7 +154,6 @@ int main(void)
 	/* Initialize board and chip */
 	Board_Init();
 	UART_Init();
-	DEBUGOUT("AUC Debug Version\n");
 
 	/* enable clocks and pinmux */
 	usb_pin_clk_init();
@@ -188,19 +187,16 @@ int main(void)
 
 	/* USB Initialization */
 	ret = USBD_API->hw->Init(&g_hUsb, &desc, &usb_param);
+	DEBUGOUT("USB Init Ret: %d\n", ret);
 	if (ret == LPC_OK) {
 		ret = CDC_I2C_init(g_hUsb, &desc, &usb_param, LPC_I2C, &hCDC_I2C0);
+		DEBUGOUT("CDC I2C Init Ret: %d\n", ret);
 		if (ret == LPC_OK) {
 			/*  enable USB interrupts */
 			NVIC_EnableIRQ(USB0_IRQn);
-		} else {
-			DEBUGOUT("CDC_I2C_init ret= %d\n", ret);
 		}
-	} else {
-		DEBUGOUT("USBD_API->hw->Init ret= %d\n", ret);
 	}
 
-	DEBUGOUT("AUC Debug Version running\n");
 	/* Initialize avalon functions */
 	AVALON_ADC_Init();
 	AVALON_LED_Init();

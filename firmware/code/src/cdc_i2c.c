@@ -67,7 +67,7 @@ typedef struct __HID_I2C_CTRL_T {
 	uint8_t respQ[CDC_I2C_MAX_PACKETS][CDC_I2C_PACKET_SZ];	/*!< Response queue */
 } CDC_I2C_CTRL_T;
 
-static const char *g_fwVersion = "AUC-20141102";
+static const char *g_fwVersion = "AUC-20141103";
 
 /*****************************************************************************
  * Public types/enumerations/variables
@@ -334,17 +334,17 @@ static void CDC_I2C_HandleXferReq(CDC_I2C_CTRL_T *pCDCI2c,
 
 	/* Update the length we have to send back */
 	if ((pXfrParam->rxLength - xfer.rxSz) > 0) {
-		DEBUGOUT("pIn->length: 0x%02x, pXfrParam->rxLength: 0x%02x, xfer.rxSz: 0x%02x\n", pIn->length, pXfrParam->rxLength, xfer.rxSz);
 		pIn->length += pXfrParam->rxLength - xfer.rxSz;
-		DEBUGOUT("pIn->length: 0x%02x, pIn->data: 0x%02x 0x%02x 0x%02x, xfer:0x%02x 0x%02x 0x%02x 0x%02x\n",
-				pIn->length, pIn->data[0], pIn->data[1], pIn->data[2],
+		DEBUGOUT("<== pIn->length: 0x%02x, pIn->data: 0x%02x 0x%02x 0x%02x, xfer:0x%02x 0x%02x 0x%02x 0x%02x\n",
+				pIn->length,
+				pIn->data[0], pIn->data[1], pIn->data[2],
 				pXfrParam->rxLength, pXfrParam->txLength, pXfrParam->options, pXfrParam->slaveAddr);
 	}
 
 	/* update response with the I2CM status returned. No translation
 	   needed as they map directly to base LPCUSBSIO status. */
 	pIn->resp = xfer.status;
-	DEBUGOUT("pIn->resp: %d\n", pIn->resp);
+	DEBUGOUT("<== pIn->resp: %d\n", pIn->resp);
 }
 
 /* Set line coding call back routine */
@@ -446,9 +446,9 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 			pIn->sesId = pOut->sesId;
 			pIn->resp = CDC_I2C_RES_INVALID_CMD;
 
-			DEBUGOUT("\n\npOut: req: 0x%02x, len: 0x%02x;",
+			DEBUGOUT("==> pOut: req: 0x%02x len: 0x%02x\n",
 						pOut->req, pOut->length);
-			DEBUGOUT(" xfer[0-4]: 0x%02x 0x%02x 0x%02x 0x%02x, data[6]: 0x%02x\n",
+			DEBUGOUT("==> xfer[0-4]: 0x%02x 0x%02x 0x%02x 0x%02x, data[6]: 0x%02x\n\n",
 						pOut->data[0], pOut->data[1], pOut->data[2], pOut->data[3], pOut->data[6]);
 
 			switch (pOut->req) {
@@ -528,7 +528,7 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 
 			if (pIn->resp != CDC_I2C_RES_OK) {
 				AVALON_LED_Rgb(AVALON_LED_RED, true);
-				DEBUGOUT("pIn->resp err = %d\n", pIn->resp);
+				DEBUGOUT("<== pIn->resp err = %d\n", pIn->resp);
 			} else
 				AVALON_LED_Rgb(AVALON_LED_RED, false);
 
@@ -541,7 +541,7 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 			if ((pCDCI2c->tx_flags & CDC_I2C_TX_BUSY) == 0) {
 				pCDCI2c->tx_flags |= CDC_I2C_TX_BUSY;
 				len = pCDCI2c->respQ[pCDCI2c->respRdIndx][0];
-				DEBUGOUT("resqQ: 0x%02x 0x%02x 0x%02x 0x%02x\n",
+				DEBUGOUT("<== resqQ: 0x%02x 0x%02x 0x%02x 0x%02x\n\n",
 						pCDCI2c->respQ[pCDCI2c->respRdIndx][0],
 						pCDCI2c->respQ[pCDCI2c->respRdIndx][1],
 						pCDCI2c->respQ[pCDCI2c->respRdIndx][2],
@@ -549,6 +549,13 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 				USBD_API->hw->WriteEP(pCDCI2c->hUsb, pCDCI2c->epin_adr, &pCDCI2c->respQ[pCDCI2c->respRdIndx][0], len);
 				CDC_I2C_IncIndex(&pCDCI2c->respRdIndx);
 			}
+		}
+
+		if (pOut->req == CDC_I2C_REQ_INIT_PORT) {
+			/* reset indexes */
+			pCDCI2c->reqWrIndx = pCDCI2c->reqRdIndx = 0;
+			pCDCI2c->respRdIndx = pCDCI2c->respWrIndx = 0;
+			pCDCI2c->resetReq = 0;
 		}
 	} else {
 		/* check if we just got dis-connected */

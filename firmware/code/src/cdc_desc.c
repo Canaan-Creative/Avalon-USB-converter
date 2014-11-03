@@ -211,11 +211,11 @@ ALIGNED(4) const uint8_t USB_StringDescriptor[] = {
 	'1', 0,
 	'1', 0,
 	'0', 0,
-	'2', 0,
+	'3', 0,
 	/* Index 0x04: Interface 1, Alternate Setting 0 */
 	(2 * 2 + 2),						/* bLength (2 Char + Type + lenght) */
 	USB_STRING_DESCRIPTOR_TYPE,			/* bDescriptorType */
-	'3', 0,
-	'5', 0,
+	'4', 0,
+	'0', 0,
 };
 

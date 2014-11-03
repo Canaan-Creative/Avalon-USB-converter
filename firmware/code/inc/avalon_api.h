@@ -39,9 +39,6 @@ extern "C"
 {
 #endif
 
-/* 1ms/100 */
-#define TICKRATE_AVALON (100000)
-
 typedef void (*TMRPROC)(void);
 
 typedef enum {
@@ -78,13 +75,6 @@ void AVALON_WDT_Init(uint8_t second);
 void AVALON_WDT_Enable(void);
 void AVALON_WDT_Feed(void);
 void AVALON_WDT_Test(void);
-
-#define AVALON_Delay(max) \
-	do {								\
-		volatile unsigned int i = (max);	\
-		while (i--)						\
-			__NOP();					\
-	} while(0)
 
 /**
  * @}

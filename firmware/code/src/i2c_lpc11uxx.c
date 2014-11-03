@@ -102,7 +102,7 @@ uint32_t Chip_I2CM_XferHandler(LPC_I2C_T *pI2C, I2CM_XFER_T *xfer)
 		if (!xfer->txSz) {
 			if (xfer->rxSz) {
 				cclr &= ~I2C_CON_STA;
-				/* 0.1ms delay for mm data xfer, best val:360 */
+				/* Wait MM finish the operation */
 				AVALON_Delay(gxfer_delay);
 			}
 			else {
@@ -181,7 +181,7 @@ uint32_t Chip_I2CM_XferBlocking(LPC_I2C_T *pI2C, I2CM_XFER_T *xfer)
 
 	while (ret == 0) {
 		/* wait for status change interrupt */
-		while ( Chip_I2CM_StateChanged(pI2C) == 0) {}
+		while (Chip_I2CM_StateChanged(pI2C) == 0) {}
 		/* call state change handler */
 		ret = Chip_I2CM_XferHandler(pI2C, xfer);
 	}
@@ -266,132 +266,7 @@ void Chip_I2CM_SetXferDelay(LPC_I2C_T *pI2C, uint32_t val)
 {
 	/* compatible with old version */
 	if (val == 0)
-		val = I2CM_XFER_DELAY_DEFAULT;
+		return;
 
 	gxfer_delay = val;
-}
-
-static unsigned int timecnt = 0;
-static void AVALON_TMRID1_Fun(void)
-{
-	timecnt++;
-}
-
-void Chip_I2CM_Test(void)
-{
-#define I2C_DEVADDR			0
-#define I2C_DATSIZE			40
-
-	uint8_t	rxdat[I2C_DATSIZE], txdat[I2C_DATSIZE];
-	int	rxsize, verifyok, i, ret;
-	I2CM_XFER_T xfer;
-
-	Chip_SYSCTL_PeriphReset(RESET_I2C0);
-	Chip_IOCON_PinMuxSet(LPC_IOCON, 0, 4, IOCON_FUNC1 | IOCON_FASTI2C_EN);
-	Chip_IOCON_PinMuxSet(LPC_IOCON, 0, 5, IOCON_FUNC1 | IOCON_FASTI2C_EN);
-
-	Chip_I2CM_Init(LPC_I2C);
-	Chip_I2CM_SetBusSpeed(LPC_I2C, 1000000);
-	AVALON_TMR_Init();
-
-	/* ACK */
-	DEBUGOUT("ACK Test:\r\n");
-
-	memset(&xfer, 0, sizeof(I2CM_XFER_T));
-	xfer.slaveAddr = I2C_DEVADDR;
-	xfer.txBuff = NULL;
-	xfer.rxBuff = rxdat;
-	xfer.rxSz = I2C_DATSIZE;
-	xfer.txSz = 0;
-	xfer.options = 0;
-	ret = Chip_I2CM_XferBlocking(LPC_I2C, &xfer);
-	if (ret) {
-		rxsize = I2C_DATSIZE - xfer.rxSz;
-		if (rxsize) {
-			DEBUGOUT("ACK Read(%d):", rxsize);
-			for (i = 0; i < rxsize; i++) {
-				DEBUGOUT("%x", rxdat[i]);
-				if (((i + 1) % 4) == 0)
-					DEBUGOUT(" ");
-			}
-			DEBUGOUT("\r\n");
-		} else
-			DEBUGOUT("ACK Read: None(origin)\r\n");
-	} else
-		DEBUGOUT("ACK Read: Err(origin)\r\n");
-
-	for (i = 0; i < I2C_DATSIZE; i++)
-			txdat[i] = i;
-
-	memset(&xfer, 0, sizeof(I2CM_XFER_T));
-	xfer.slaveAddr = I2C_DEVADDR;
-	xfer.txBuff = txdat;
-	xfer.rxBuff = NULL;
-	xfer.rxSz = 0;
-	xfer.txSz = I2C_DATSIZE;
-	xfer.options = 0;
-	ret = Chip_I2CM_XferBlocking(LPC_I2C, &xfer);
-	if (ret)
-		DEBUGOUT("ACK Write: Finish (%d)\r\n", I2C_DATSIZE - xfer.txSz);
-	else
-		DEBUGOUT("ACK Write: Failed \r\n");
-
-	verifyok = 0;
-	memset(rxdat, 0, I2C_DATSIZE);
-	memset(&xfer, 0, sizeof(I2CM_XFER_T));
-	xfer.slaveAddr = I2C_DEVADDR;
-	xfer.txBuff = NULL;
-	xfer.rxBuff = rxdat;
-	xfer.rxSz = I2C_DATSIZE;
-	xfer.txSz = 0;
-	xfer.options = 0;
-	ret = Chip_I2CM_XferBlocking(LPC_I2C, &xfer);
-	if (ret) {
-		rxsize = I2C_DATSIZE - xfer.rxSz;
-		DEBUGOUT("ACK Read(%d): Finish\r\n", rxsize);
-		for (i = 0; i < rxsize; i++) {
-			if (rxdat[i] != txdat[i]) {
-				break;
-			}
-		}
-		if (i == I2C_DATSIZE)
-			verifyok = 1;
-	} else
-		DEBUGOUT("ACK Read: None(new)\r\n");
-
-	if (verifyok) {
-		DEBUGOUT("ACK Verify: W/R Success!\r\n");
-	} else {
-		DEBUGOUT("ACK Verify: W/R Failed!\r\n");
-	}
-
-	/* bps test */
-	for (i = 0; i < I2C_DATSIZE; i++)
-				txdat[i] = i;
-
-	timecnt = 0;
-	AVALON_TMR_Set(AVALON_TMR_ID1, 1, AVALON_TMRID1_Fun);
-	memset(&xfer, 0, sizeof(I2CM_XFER_T));
-	xfer.slaveAddr = 0;
-	xfer.txBuff = txdat;
-	xfer.rxBuff = NULL;
-	xfer.rxSz = 0;
-	xfer.txSz = I2C_DATSIZE;
-	xfer.options = 0;
-	ret = Chip_I2CM_XferBlocking(LPC_I2C, &xfer);
-	AVALON_TMR_Kill(AVALON_TMR_ID1);
-	DEBUGOUT("W rate : %d bps\r\n", 40 * 8 * TICKRATE_AVALON / timecnt);
-
-	timecnt = 0;
-	AVALON_TMR_Set(AVALON_TMR_ID1, 1, AVALON_TMRID1_Fun);
-	memset(&xfer, 0, sizeof(I2CM_XFER_T));
-	xfer.slaveAddr = I2C_DEVADDR;
-	xfer.txBuff = NULL;
-	xfer.rxBuff = rxdat;
-	xfer.rxSz = I2C_DATSIZE;
-	xfer.txSz = 0;
-	xfer.options = 0;
-	ret = Chip_I2CM_XferBlocking(LPC_I2C, &xfer);
-	AVALON_TMR_Kill(AVALON_TMR_ID1);
-	DEBUGOUT("R rate : %d bps\r\n", 40 * 8 * TICKRATE_AVALON / timecnt);
 }
