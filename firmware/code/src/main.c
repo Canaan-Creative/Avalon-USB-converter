@@ -193,10 +193,6 @@ int main(void)
 		if (ret == LPC_OK) {
 			/*  enable USB interrupts */
 			NVIC_EnableIRQ(USB0_IRQn);
-			/* now connect */
-			USBD_API->hw->Connect(g_hUsb, 0);
-			/* delay for host detect */
-			AVALON_Delay(48 * 1000 * 100);
 		} else {
 			DEBUGOUT("CDC_I2C_init ret= %d\n", ret);
 		}
