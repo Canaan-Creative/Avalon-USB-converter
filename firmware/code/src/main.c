@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "app_usbd_cfg.h"
+#include "i2c_lpc11uxx.h"
 #include "cdc_i2c.h"
 #include "uart.h"
 #include "avalon_api.h"
@@ -202,6 +203,13 @@ int main(void)
 	AVALON_LED_Init();
 	AVALON_WDT_Init(5);
 	AVALON_WDT_Enable();
+
+	/* Init I2C port */
+	Chip_I2CM_Init(LPC_I2C);
+	Chip_I2CM_SetBusSpeed(LPC_I2C, 400000);
+	AVALON_LED_Rgb(AVALON_LED_BLUE, true);
+
+	AVALON_Delay(I2CM_XFER_DELAY_DEFAULT * 10);
 
 	/* now connect */
 	USBD_API->hw->Connect(g_hUsb, 1);

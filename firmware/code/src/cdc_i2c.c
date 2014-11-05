@@ -466,27 +466,16 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 
 				/* update response */
 				pIn->resp = CDC_I2C_RES_OK;
+
 				AVALON_LED_Rgb(AVALON_LED_BLUE, true);
 				break;
 
 			case CDC_I2C_REQ_DEINIT_PORT:
 				Chip_I2CM_DeInit(pCDCI2c->pI2C);
 				/* update response */
-				AVALON_LED_Rgb(AVALON_LED_BLUE, false);
 				pIn->resp = CDC_I2C_RES_OK;
-				break;
 
-			case CDC_I2C_REQ_DEVICE_WRITE:
-			case CDC_I2C_REQ_DEVICE_READ:
-				AVALON_LED_Rgb(AVALON_LED_GREEN, true);
-				CDC_I2C_HandleRWReq(pCDCI2c, pOut, pIn, (pOut->req == CDC_I2C_REQ_DEVICE_READ));
-				AVALON_LED_Rgb(AVALON_LED_GREEN, false);
-				break;
-
-			case CDC_I2C_REQ_DEVICE_XFER:
-				AVALON_LED_Rgb(AVALON_LED_GREEN, true);
-				CDC_I2C_HandleXferReq(pCDCI2c, pOut, pIn);
-				AVALON_LED_Rgb(AVALON_LED_GREEN, false);
+				AVALON_LED_Rgb(AVALON_LED_BLUE, false);
 				break;
 
 			case CDC_I2C_REQ_RESET:
@@ -494,7 +483,7 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 				Chip_I2CM_SendStartAfterStop(pCDCI2c->pI2C);
 				Chip_I2CM_WriteByte(pCDCI2c->pI2C, 0xFF);
 				Chip_I2CM_SendStop(pCDCI2c->pI2C);
-				pCDCI2c->resetReq = 0;
+				pIn->resp = CDC_I2C_RES_OK;
 				break;
 
             case CDC_I2C_REQ_DEVICE_INFO:
@@ -524,38 +513,52 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 
 				pIn->resp = CDC_I2C_RES_OK;
 				break;
+
+			case CDC_I2C_REQ_DEVICE_WRITE:
+			case CDC_I2C_REQ_DEVICE_READ:
+				AVALON_LED_Rgb(AVALON_LED_GREEN, true);
+				CDC_I2C_HandleRWReq(pCDCI2c, pOut, pIn, (pOut->req == CDC_I2C_REQ_DEVICE_READ));
+				AVALON_LED_Rgb(AVALON_LED_GREEN, false);
+				break;
+
+			case CDC_I2C_REQ_DEVICE_XFER:
+				AVALON_LED_Rgb(AVALON_LED_GREEN, true);
+				CDC_I2C_HandleXferReq(pCDCI2c, pOut, pIn);
+				AVALON_LED_Rgb(AVALON_LED_GREEN, false);
+				break;
 			}
 
-			if (pIn->resp != CDC_I2C_RES_OK) {
-				AVALON_LED_Rgb(AVALON_LED_RED, true);
-				DEBUGOUT("<== pIn->resp err = %d\n", pIn->resp);
-			} else
-				AVALON_LED_Rgb(AVALON_LED_RED, false);
+			if (pCDCI2c->resetReq) {
+				pCDCI2c->resetReq = 0;
 
-			CDC_I2C_IncIndex(&pCDCI2c->reqRdIndx);
+				pCDCI2c->reqWrIndx = pCDCI2c->reqRdIndx = 0;
+				pCDCI2c->respRdIndx = pCDCI2c->respWrIndx = 0;
+			} else
+				CDC_I2C_IncIndex(&pCDCI2c->reqRdIndx);
+
 			CDC_I2C_IncIndex(&pCDCI2c->respWrIndx);
+
+			if (pIn->resp != CDC_I2C_RES_OK)
+				AVALON_LED_Rgb(AVALON_LED_RED, true);
+			else
+				AVALON_LED_Rgb(AVALON_LED_RED, false);
 		}
 
 		/* last report is successfully sent. Send next response if in queue. */
 		if (pCDCI2c->respRdIndx != pCDCI2c->respWrIndx) {
 			if ((pCDCI2c->tx_flags & CDC_I2C_TX_BUSY) == 0) {
 				pCDCI2c->tx_flags |= CDC_I2C_TX_BUSY;
-				len = pCDCI2c->respQ[pCDCI2c->respRdIndx][0];
+
 				DEBUGOUT("<== resqQ: 0x%02x 0x%02x 0x%02x 0x%02x\n\n",
-						pCDCI2c->respQ[pCDCI2c->respRdIndx][0],
-						pCDCI2c->respQ[pCDCI2c->respRdIndx][1],
-						pCDCI2c->respQ[pCDCI2c->respRdIndx][2],
-						pCDCI2c->respQ[pCDCI2c->respRdIndx][3]);
+									pCDCI2c->respQ[pCDCI2c->respRdIndx][0],
+									pCDCI2c->respQ[pCDCI2c->respRdIndx][1],
+									pCDCI2c->respQ[pCDCI2c->respRdIndx][2],
+									pCDCI2c->respQ[pCDCI2c->respRdIndx][3]);
+
+				len = pCDCI2c->respQ[pCDCI2c->respRdIndx][0];
 				USBD_API->hw->WriteEP(pCDCI2c->hUsb, pCDCI2c->epin_adr, &pCDCI2c->respQ[pCDCI2c->respRdIndx][0], len);
 				CDC_I2C_IncIndex(&pCDCI2c->respRdIndx);
 			}
-		}
-
-		if (pOut->req == CDC_I2C_REQ_INIT_PORT) {
-			/* reset indexes */
-			pCDCI2c->reqWrIndx = pCDCI2c->reqRdIndx = 0;
-			pCDCI2c->respRdIndx = pCDCI2c->respWrIndx = 0;
-			pCDCI2c->resetReq = 0;
 		}
 	} else {
 		/* check if we just got dis-connected */
@@ -565,7 +568,7 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 			pCDCI2c->respRdIndx = pCDCI2c->respWrIndx = 0;
 			pCDCI2c->resetReq = 0;
 		}
-		AVALON_LED_Rgb(AVALON_LED_BLUE, false);
 		pCDCI2c->state = CDC_I2C_STATE_DISCON;
+		AVALON_LED_Rgb(AVALON_LED_BLUE, false);
 	}
 }
