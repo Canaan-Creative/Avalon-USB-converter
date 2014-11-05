@@ -530,12 +530,8 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 
 			if (pCDCI2c->resetReq) {
 				pCDCI2c->resetReq = 0;
-
-				pCDCI2c->reqWrIndx = pCDCI2c->reqRdIndx = 0;
-				pCDCI2c->respRdIndx = pCDCI2c->respWrIndx = 0;
-			} else
-				CDC_I2C_IncIndex(&pCDCI2c->reqRdIndx);
-
+			}
+			CDC_I2C_IncIndex(&pCDCI2c->reqRdIndx);
 			CDC_I2C_IncIndex(&pCDCI2c->respWrIndx);
 
 			if (pIn->resp != CDC_I2C_RES_OK)
