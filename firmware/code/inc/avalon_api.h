@@ -76,6 +76,8 @@ void AVALON_WDT_Enable(void);
 void AVALON_WDT_Feed(void);
 void AVALON_WDT_Test(void);
 
+void AVALON_Delay(volatile unsigned int ticks);
+
 /**
  * @}
  */
