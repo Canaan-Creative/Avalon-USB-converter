@@ -64,7 +64,7 @@ typedef struct __HID_I2C_CTRL_T {
 	uint8_t respQ[CDC_I2C_MAX_PACKETS][CDC_I2C_PACKET_SZ];	/*!< Response queue */
 } CDC_I2C_CTRL_T;
 
-static const char *g_fwVersion = "AUC-20141105";
+static const char *g_fwVersion = "AUC-20141122";
 
 /*****************************************************************************
  * Public types/enumerations/variables
