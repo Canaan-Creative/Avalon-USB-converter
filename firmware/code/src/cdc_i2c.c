@@ -42,9 +42,6 @@
  * Private types/enumerations/variables
  ****************************************************************************/
 
-#define CDC_I2C_STATE_DISCON        0
-#define CDC_I2C_STATE_CONNECTED     1
-
 /**
  * Structure containing HID_I2C control data
  */
@@ -557,14 +554,36 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 			}
 		}
 	} else {
-		/* check if we just got dis-connected */
-		if (pCDCI2c->state != CDC_I2C_STATE_DISCON) {
-			/* reset indexes */
-			pCDCI2c->reqWrIndx = pCDCI2c->reqRdIndx = 0;
-			pCDCI2c->respRdIndx = pCDCI2c->respWrIndx = 0;
-			pCDCI2c->resetReq = 0;
+		/* CONNECT -> config unset , need restart */
+		if (pCDCI2c->state == CDC_I2C_STATE_CONNECTED)
+			pCDCI2c->state = CDC_I2C_STATE_NEEDRESET;
+		else {
+			/* check if we just got dis-connected */
+			if (pCDCI2c->state != CDC_I2C_STATE_DISCON) {
+				/* reset indexes */
+				pCDCI2c->reqWrIndx = pCDCI2c->reqRdIndx = 0;
+				pCDCI2c->respRdIndx = pCDCI2c->respWrIndx = 0;
+				pCDCI2c->resetReq = 0;
+			}
+			pCDCI2c->state = CDC_I2C_STATE_DISCON;
+			AVALON_LED_Rgb(AVALON_LED_BLUE, false);
 		}
-		pCDCI2c->state = CDC_I2C_STATE_DISCON;
-		AVALON_LED_Rgb(AVALON_LED_BLUE, false);
 	}
 }
+
+void CDC_I2C_SetState(USBD_HANDLE_T hI2CCDC, uint8_t state)
+{
+	CDC_I2C_CTRL_T *pCDCI2c = (CDC_I2C_CTRL_T *) hI2CCDC;
+	if (pCDCI2c)
+		pCDCI2c->state = state;
+}
+
+uint8_t CDC_I2C_GetState(USBD_HANDLE_T hI2CCDC)
+{
+	CDC_I2C_CTRL_T *pCDCI2c = (CDC_I2C_CTRL_T *) hI2CCDC;
+	if (pCDCI2c)
+		return pCDCI2c->state;
+
+	return CDC_I2C_STATE_UNKNOWN;
+}
+

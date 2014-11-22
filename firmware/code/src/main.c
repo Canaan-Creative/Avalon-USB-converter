@@ -213,9 +213,13 @@ int main(void)
 
 	/* now connect */
 	USBD_API->hw->Connect(g_hUsb, 1);
+	CDC_I2C_SetState(hCDC_I2C0, CDC_I2C_STATE_INIT);
 
 	while (1) {
 		CDC_I2C_process(hCDC_I2C0);
-		AVALON_WDT_Feed();
+		if (CDC_I2C_GetState(hCDC_I2C0) == CDC_I2C_STATE_NEEDRESET)
+			NVIC_SystemReset();
+		else
+			AVALON_WDT_Feed();
 	}
 }

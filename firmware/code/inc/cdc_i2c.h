@@ -46,6 +46,12 @@ extern "C"
 
 #define CDC_I2C_TX_BUSY        _BIT(0)
 
+#define CDC_I2C_STATE_INIT          0
+#define CDC_I2C_STATE_DISCON        1
+#define CDC_I2C_STATE_CONNECTED     2
+#define CDC_I2C_STATE_NEEDRESET     3
+#define CDC_I2C_STATE_UNKNOWN       4
+
 /**
  * @brief	CDC_I2C interface init routine.
  * @param	hUsb		: Handle to USB device stack
@@ -71,6 +77,9 @@ ErrorCode_t CDC_I2C_init(USBD_HANDLE_T hUsb,
  * @param	hI2CCDC		: Handle to CDC_I2C instance
  */
 void CDC_I2C_process(USBD_HANDLE_T hI2CCDC);
+
+void CDC_I2C_SetState(USBD_HANDLE_T hI2CCDC, uint8_t state);
+uint8_t CDC_I2C_GetState(USBD_HANDLE_T hI2CCDC);
 
 /**
  * @}
