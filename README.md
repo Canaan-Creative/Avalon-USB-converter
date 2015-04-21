@@ -4,12 +4,12 @@ Avalon-USB-Converter is an USB2IIC & USB2UART converter based on LPC USB Serial 
 
 It converts all API calls into USB messages which are transferred to LPC11u14,which in turn communicates with serial devices using I2C and UART interfaces. 
 
-It uses USB-HID/USB-CDC class as transport mechanism.
+It uses USB-CDC class as transport mechanism.
 
 Directory structure
 ===================
 * `firmware`: Avalon-USB-Converter firmware
-* `loopbackdemo`: HID/CDC loopback testing
+* `loopbackdemo`: CDC loopback testing
 
 IDE Support
 =============
