@@ -11,6 +11,11 @@
 
 void AVALON_LED_Init(void)
 {
+	/* Set LED's GPIO High */
+	Chip_GPIO_SetPinState(LPC_GPIO, 0, 8, true);
+	Chip_GPIO_SetPinState(LPC_GPIO, 0, 9, true);
+	Chip_GPIO_SetPinState(LPC_GPIO, 0, 11, true);
+
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO, 0, 8);
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO, 0, 9);
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO, 0, 11);
@@ -18,6 +23,9 @@ void AVALON_LED_Init(void)
 
 void AVALON_LED_Rgb(unsigned int rgb, bool on)
 {
+	/* Level Reversal */
+	on ^= true;
+
 	switch (rgb) {
 	case AVALON_LED_RED:
 		Chip_GPIO_SetPinState(LPC_GPIO, 0, 8, on);
