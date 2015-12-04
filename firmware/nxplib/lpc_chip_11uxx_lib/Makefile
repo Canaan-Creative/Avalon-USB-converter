@@ -1,13 +1,12 @@
 #
 # Author: Mikeqin <Fengling.Qin@gmail.com>
+#         Johnson <fanzixiao@canaan-creative.com>
 #
 # This is free and unencumbered software released into the public domain.
 # For details see the UNLICENSE file at the root of the source tree.
 #
-# Mender: Johnson <fanzixiao@canaan-creative.com>
-# Modify: Modify include'path
 
-include ../defaultc.mk
+include ../../defaultc.mk
 
 $(SLIB): ${OBJS}
 	mkdir -p $(LIBDIR)
