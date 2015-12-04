@@ -20,9 +20,6 @@ include mydefaultc.mk
 NXP_PARAMETERS = -g -2 -vendor=NXP -pLPC11U14/201 -wire=winUSB -s50 -flash-driver=LPC11_12_13_32K_4K.cfx
 LPCLINK_FIRM ?= LPCXpressoWIN.enc
 
-GIT_VERSION:=$(shell git rev-parse HEAD | cut -c 1-7)
-GIT_STATUS:=$(shell ([ -z "`git status -s -uno`" ] && echo 0) || echo +)
-
 # Judge RELEASE OR DEBUG
 ifeq "$(FW_RELEASE)" "DEBUG"
 FIRMWARE = avalon-usb-converter-debug
@@ -36,8 +33,7 @@ CFLAGS	+= -D__CODE_RED -DCORE_M0 -D__USE_LPCOPEN -D__LPC11UXX__ \
 	-Wall -c -fmessage-length=0 -fno-builtin -ffunction-sections \
 	-fdata-sections -mcpu=cortex-m0 -mthumb
 
-CFLAGS	+= -DAVAM_VERSION='"3U1505-$(GIT_VERSION)$(GIT_STATUS)"' \
-	-I./code/inc -I$(NXPLIBS_PATH)/lpc_chip_11uxx_lib/inc \
+CFLAGS	+= -I./code/inc -I$(NXPLIBS_PATH)/lpc_chip_11uxx_lib/inc \
 	-I$(NXPLIBS_PATH)/nxp_lpcxpresso_11u14_board_lib/inc \
 	-I$(NXPLIBS_PATH)/lpc_chip_11uxx_lib/inc/usbd
 
