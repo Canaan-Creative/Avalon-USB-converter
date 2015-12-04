@@ -15,7 +15,7 @@ FW_RELEASE = RELEASE
 DATE:=$(shell date +%Y-%m-%d)
 OS:=$(shell uname -s)
 
-NXPLIBS_PATH = ./nxplib
+NXPLIBS_PATH = ./nxplib/
 
 SRCS	= $(wildcard ./code/src/*.c)
 OBJS	= $(patsubst %.c,%.o,$(SRCS))
