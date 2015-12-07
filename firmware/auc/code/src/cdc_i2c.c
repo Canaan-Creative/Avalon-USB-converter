@@ -65,7 +65,7 @@ typedef struct __HID_I2C_CTRL_T {
 	uint32_t unconn_cnt;	/*!< unconnected time. */
 } CDC_I2C_CTRL_T;
 
-static const char *g_fwVersion = "AUC-20141122";
+static const char *g_fwVersion = "AUC-20151208";
 
 /*****************************************************************************
  * Public types/enumerations/variables
