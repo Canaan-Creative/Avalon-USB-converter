@@ -543,10 +543,7 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 			if (++pCDCI2c->unconn_cnt > CDC_I2C_EMPTY_TIME) {
 				pCDCI2c->unconn_cnt = CDC_I2C_EMPTY_TIME;
 				AVALON_LED_Rgb(AVALON_LED_BLUE,true);
-			} else {
-				AVALON_LED_Rgb(AVALON_LED_RED, false);
-				AVALON_LED_Rgb(AVALON_LED_GREEN, false);
-			}
+			} 
 		}
 
 		/* last report is successfully sent. Send next response if in queue. */
