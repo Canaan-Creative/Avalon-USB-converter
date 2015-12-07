@@ -62,7 +62,7 @@ typedef struct __HID_I2C_CTRL_T {
 	volatile uint16_t tx_flags;
 	uint8_t reqQ[CDC_I2C_MAX_PACKETS][CDC_I2C_PACKET_SZ];		/*!< Requests queue */
 	uint8_t respQ[CDC_I2C_MAX_PACKETS][CDC_I2C_PACKET_SZ];	/*!< Response queue */
-	uint32_t unconn_cnt;	/*!< unconnection time. */
+	uint32_t unconn_cnt;	/*!< unconnected time. */
 } CDC_I2C_CTRL_T;
 
 static const char *g_fwVersion = "AUC-20141122";
@@ -536,13 +536,12 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 
 			if (pIn->resp != CDC_I2C_RES_OK)
 				AVALON_LED_Rgb(AVALON_LED_RED, true);
-			else if (true == xferok)
+			else if (xferok)
 				AVALON_LED_Rgb(AVALON_LED_GREEN, true);
 		} else {
-
 			if (++pCDCI2c->unconn_cnt > CDC_I2C_EMPTY_TIME) {
 				pCDCI2c->unconn_cnt = CDC_I2C_EMPTY_TIME;
-				AVALON_LED_Rgb(AVALON_LED_BLUE,true);
+				AVALON_LED_Rgb(AVALON_LED_BLUE, true);
 			}
 		}
 

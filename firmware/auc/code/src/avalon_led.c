@@ -28,21 +28,21 @@ void AVALON_LED_Rgb(unsigned int rgb, bool on)
 	switch (rgb) {
 	case AVALON_LED_RED:
 		Chip_GPIO_SetPinState(LPC_GPIO, 0, 8, (on ^ true));
-		if (true == on) {
+		if (on) {
 			Chip_GPIO_SetPinState(LPC_GPIO, 0, 9, on);
 			Chip_GPIO_SetPinState(LPC_GPIO, 0, 11, on);
 		}
 		break;
 	case AVALON_LED_GREEN:
 		Chip_GPIO_SetPinState(LPC_GPIO, 0, 9, (on ^ true));
-		if (true == on) {
+		if (on) {
 			Chip_GPIO_SetPinState(LPC_GPIO, 0, 8, on);
 			Chip_GPIO_SetPinState(LPC_GPIO, 0, 11, on);
 		}
 		break;
 	case AVALON_LED_BLUE:
 		Chip_GPIO_SetPinState(LPC_GPIO, 0, 11, (on ^ true));
-		if (true == on) {
+		if (on) {
 			Chip_GPIO_SetPinState(LPC_GPIO, 0, 8, on);
 			Chip_GPIO_SetPinState(LPC_GPIO, 0, 9, on);
 		}

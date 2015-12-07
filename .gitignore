@@ -3,11 +3,21 @@
 *.launch
 *.dep
 
-firmware/bin
-firmware/code/Debug
-firmware/code/.settings
+firmware/auc/avalon-usb-converter-debug.axf
+firmware/auc/avalon-usb-converter-debug.bin
+firmware/auc/avalon-usb-converter-debug.hex
+firmware/auc/avalon-usb-converter-debug.map
+firmware/auc/avalon-usb-converter.axf
+firmware/auc/avalon-usb-converter.bin
+firmware/auc/avalon-usb-converter.hex
+firmware/auc/avalon-usb-converter.map
+firmware/nxplib/lpc_chip_11uxx_lib/libs/liblpc_chip_11uxx_lib.a
+firmware/nxplib/nxp_lpcxpresso_11u14_board_lib/libs/
+firmware/auc/bin/
+firmware/auc/code/Debug
+firmware/auc/code/Release
+firmware/auc/code/.settings
 firmware/nxplib/lpc_chip_11uxx_lib/Debug
 firmware/nxplib/nxp_lpcxpresso_11u14_board_lib/Debug
-firmware/code/Release
 firmware/nxplib/lpc_chip_11uxx_lib/Release
 firmware/nxplib/nxp_lpcxpresso_11u14_board_lib/Release
