@@ -62,6 +62,7 @@ typedef struct __HID_I2C_CTRL_T {
 	volatile uint16_t tx_flags;
 	uint8_t reqQ[CDC_I2C_MAX_PACKETS][CDC_I2C_PACKET_SZ];		/*!< Requests queue */
 	uint8_t respQ[CDC_I2C_MAX_PACKETS][CDC_I2C_PACKET_SZ];	/*!< Response queue */
+	uint32_t unconn_cnt;	/*!< unconnection time. */
 } CDC_I2C_CTRL_T;
 
 static const char *g_fwVersion = "AUC-20141122";
@@ -429,11 +430,15 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 	uint16_t len;
 	uint16_t temp;
 	uint8_t reqcnt, respcnt;
+	bool xferok;
 
 	if (USB_IsConfigured(pCDCI2c->hUsb)) {
 		/* set state to connected */
 		pCDCI2c->state = CDC_I2C_STATE_CONNECTED;
 		if (pCDCI2c->reqWrIndx != pCDCI2c->reqRdIndx) {
+			pCDCI2c->unconn_cnt = 0;
+			xferok = false;
+
 			/* process the current packet */
 			pOut = (CDC_I2C_OUT_REPORT_T *) &pCDCI2c->reqQ[pCDCI2c->reqRdIndx][0];
 			pIn = (CDC_I2C_IN_REPORT_T *) &pCDCI2c->respQ[pCDCI2c->respWrIndx][0];
@@ -513,15 +518,13 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 
 			case CDC_I2C_REQ_DEVICE_WRITE:
 			case CDC_I2C_REQ_DEVICE_READ:
-				AVALON_LED_Rgb(AVALON_LED_GREEN, true);
+				xferok = true;
 				CDC_I2C_HandleRWReq(pCDCI2c, pOut, pIn, (pOut->req == CDC_I2C_REQ_DEVICE_READ));
-				AVALON_LED_Rgb(AVALON_LED_GREEN, false);
 				break;
 
 			case CDC_I2C_REQ_DEVICE_XFER:
-				AVALON_LED_Rgb(AVALON_LED_GREEN, true);
+				xferok = true;
 				CDC_I2C_HandleXferReq(pCDCI2c, pOut, pIn);
-				AVALON_LED_Rgb(AVALON_LED_GREEN, false);
 				break;
 			}
 
@@ -533,8 +536,14 @@ void CDC_I2C_process(USBD_HANDLE_T hI2CCDC)
 
 			if (pIn->resp != CDC_I2C_RES_OK)
 				AVALON_LED_Rgb(AVALON_LED_RED, true);
-			else
-				AVALON_LED_Rgb(AVALON_LED_RED, false);
+			else if (true == xferok)
+				AVALON_LED_Rgb(AVALON_LED_GREEN, true);
+		} else {
+
+			if (++pCDCI2c->unconn_cnt > CDC_I2C_EMPTY_TIME) {
+				pCDCI2c->unconn_cnt = CDC_I2C_EMPTY_TIME;
+				AVALON_LED_Rgb(AVALON_LED_BLUE,true);
+			}
 		}
 
 		/* last report is successfully sent. Send next response if in queue. */

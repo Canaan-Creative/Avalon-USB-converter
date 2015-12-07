@@ -3,6 +3,7 @@
 *.launch
 *.dep
 
+firmware/bin
 firmware/code/Debug
 firmware/code/.settings
 firmware/nxplib/lpc_chip_11uxx_lib/Debug

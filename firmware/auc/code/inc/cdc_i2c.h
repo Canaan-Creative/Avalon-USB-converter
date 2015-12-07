@@ -52,6 +52,7 @@ extern "C"
 #define CDC_I2C_STATE_NEEDRESET     3
 #define CDC_I2C_STATE_UNKNOWN       4
 
+#define CDC_I2C_EMPTY_TIME			400000
 /**
  * @brief	CDC_I2C interface init routine.
  * @param	hUsb		: Handle to USB device stack
