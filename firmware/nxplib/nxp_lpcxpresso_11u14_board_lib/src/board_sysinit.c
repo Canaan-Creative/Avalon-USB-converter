@@ -85,7 +85,7 @@ STATIC void SystemSetupClocking(void)
 	Chip_Clock_SetSystemPLLSource(SYSCTL_PLLCLKSRC_MAINOSC);
 
 	/* Power down PLL to change the PLL divider ratio */
-	Chip_SYSCTL_PowerDown(SYSCTL_POWERDOWN_SYSPLL_PD);
+//	Chip_SYSCTL_PowerDown(SYSCTL_POWERDOWN_SYSPLL_PD);
 
 	/* Setup PLL for main oscillator rate (FCLKIN = 12MHz) * 4 = 48MHz
 	   MSEL = 3 (this is pre-decremented), PSEL = 1 (for P = 2)

@@ -2,7 +2,7 @@
  * @brief Configuration file needed for USB ROM stack based applications.
  *
  * @note
- * Copyright(C) NXP Semiconductors, 2013
+ * Copyright(C) NXP Semiconductors, 2012
  * All rights reserved.
  *
  * @par
@@ -53,16 +53,13 @@ extern "C"
 #define USB_MAX_PACKET0         64		/*!< Max EP0 packet size used for building USBD_Lib. DON'T CHANGE. */
 #define USB_FS_MAX_BULK_PACKET  64		/*!< MAXP for FS bulk EPs used for building USBD_Lib. DON'T CHANGE. */
 #define USB_HS_MAX_BULK_PACKET  512		/*!< MAXP for HS bulk EPs used for building USBD_Lib. DON'T CHANGE. */
-#define USB_DFU_XFER_SIZE       125		/*!< Max DFU transfer size used for building USBD_Lib. DON'T CHANGE. */
+#define USB_DFU_XFER_SIZE       256		/*!< Max DFU transfer size used for building USBD_Lib. DON'T CHANGE. */
 
 /* Manifest constants defining interface numbers and endpoints used by a
    particular interface in this application.
  */
-#define USB_CDC_CIF_NUM         0
-#define USB_CDC_DIF_NUM         1
-#define USB_CDC_IN_EP           0x81
-#define USB_CDC_OUT_EP          0x01
-#define USB_CDC_INT_EP          0x82
+#define HID_EP_IN       0x81
+#define HID_EP_OUT      0x01
 
 /* The following manifest constants are used to define this memory area to be used
    by USBD_LIB stack.

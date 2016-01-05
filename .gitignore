@@ -21,3 +21,12 @@ firmware/nxplib/lpc_chip_11uxx_lib/Debug
 firmware/nxplib/nxp_lpcxpresso_11u14_board_lib/Debug
 firmware/nxplib/lpc_chip_11uxx_lib/Release
 firmware/nxplib/nxp_lpcxpresso_11u14_board_lib/Release
+firmware/bootloader/avalon-usb-bootloader.axf
+firmware/bootloader/avalon-usb-bootloader.bin
+firmware/bootloader/avalon-usb-bootloader.hex
+firmware/bootloader/avalon-usb-bootloader.map
+firmware/bootloader/bin/
+firmware/bootloader/code/.settings
+
+
+

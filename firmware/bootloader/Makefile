@@ -22,10 +22,10 @@ LPCLINK_FIRM ?= LPCXpressoWIN.enc
 
 # Judge RELEASE OR DEBUG
 ifeq "$(FW_RELEASE)" "DEBUG"
-FIRMWARE = avalon-usb-converter-debug
+FIRMWARE = avalon-usb-bootloader-debug
 CFLAGS	+= -DDEBUG -O0 -g3
 else
-FIRMWARE = avalon-usb-converter
+FIRMWARE = avalon-usb-bootloader
 CFLAGS	+= -DNDEBUG -Og -g
 endif
 
