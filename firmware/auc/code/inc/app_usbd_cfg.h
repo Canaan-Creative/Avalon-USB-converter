@@ -53,7 +53,7 @@ extern "C"
 #define USB_MAX_PACKET0         64		/*!< Max EP0 packet size used for building USBD_Lib. DON'T CHANGE. */
 #define USB_FS_MAX_BULK_PACKET  64		/*!< MAXP for FS bulk EPs used for building USBD_Lib. DON'T CHANGE. */
 #define USB_HS_MAX_BULK_PACKET  512		/*!< MAXP for HS bulk EPs used for building USBD_Lib. DON'T CHANGE. */
-#define USB_DFU_XFER_SIZE       125		/*!< Max DFU transfer size used for building USBD_Lib. DON'T CHANGE. */
+#define USB_DFU_XFER_SIZE       256		/*!< Max DFU transfer size used for building USBD_Lib. DON'T CHANGE. */
 
 /* Manifest constants defining interface numbers and endpoints used by a
    particular interface in this application.

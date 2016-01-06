@@ -3,6 +3,7 @@
  *
  * @note
  * Author: Mikeqin Fengling.Qin@gmail.com
+ *         fanzixiao@canaan-creative.com
  *
  * @par
  * This is free and unencumbered software released into the public domain.
@@ -19,6 +20,7 @@
 
 #define APP_START_ADDR		0x4000
 #define APP_END_ADDR		0x8000
+#define UPGRADE_FLAG		0xAABBCCDD
 
 extern unsigned char g_flash_buf[FLASH_BUF_SIZE];
 

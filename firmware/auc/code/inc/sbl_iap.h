@@ -11,7 +11,7 @@
 #ifndef  _SBL_IAP_H
 #define  _SBL_IAP_H
 
-#define FLASH_BUF_SIZE		512
+#define FLASH_BUF_SIZE		256
 #define SECTOR_0_START_ADDR	0
 #define SECTOR_SIZE			4096
 #define MAX_USER_SECTOR		8
@@ -36,7 +36,6 @@ enum iap_cmd_code {
 	READ_UID=58
 };
 
-unsigned int write_flash(unsigned int dst, unsigned char *src, unsigned int no_of_bytes);
 int iap_readserialid(char *dna);
 void reinvokeisp(void);
 int write_updata_flag(void);

@@ -26,7 +26,7 @@ firmware/bootloader/avalon-usb-bootloader.bin
 firmware/bootloader/avalon-usb-bootloader.hex
 firmware/bootloader/avalon-usb-bootloader.map
 firmware/bootloader/bin/
+firmware/bootloader/code/.cproject
 firmware/bootloader/code/.settings
-
-
-
+firmware/bootloader/tags
+firmware/auc/tags

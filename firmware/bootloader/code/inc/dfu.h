@@ -16,4 +16,7 @@ uint8_t get_enable_write_flash_status(void);
 void clear_enable_write_flash_status(void);
 uint8_t get_finish_upgrade(void);
 void clear_finish_upgrade(void);
+uint8_t get_last_upgrade_data_packet(void);
+void clear_last_upgrade_data_packet(void);
+
 #endif /* __DFU_H_ */

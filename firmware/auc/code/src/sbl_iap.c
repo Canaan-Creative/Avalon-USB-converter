@@ -3,6 +3,7 @@
  *
  * @note
  * Author: Mikeqin Fengling.Qin@gmail.com
+ *         fanzixiao@canaan-creative.com
  *
  * @par
  * This is free and unencumbered software released into the public domain.
@@ -122,30 +123,6 @@ static int find_erase_prepare_sector(unsigned int flash_address)
 	}
 
 	return 0;
-}
-
-unsigned int write_flash(unsigned int dst, unsigned char *src, unsigned int no_of_bytes)
-{
-	static unsigned int byte_cnt = 0;
-	unsigned int enabled_irqs;
-	int ret = 0;
-
-	enabled_irqs = NVIC->ISER[0];
-
-	memcpy(&g_flash_buf[byte_cnt], src, no_of_bytes);
-	byte_cnt += no_of_bytes;
-
-	if (byte_cnt == FLASH_BUF_SIZE) {
-		NVIC->ICER[0] = enabled_irqs;
-		byte_cnt = 0;
-		if (find_erase_prepare_sector(dst))
-			ret = 1;
-		if (write_data(dst, g_flash_buf, FLASH_BUF_SIZE))
-			ret = 1;
-	}
-	NVIC->ISER[0] = enabled_irqs;
-
-	return ret;
 }
 
 int write_updata_flag(void)

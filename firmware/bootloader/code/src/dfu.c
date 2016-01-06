@@ -3,6 +3,7 @@
  *
  * @note
  * Author: Mikeqin Fengling.Qin@gmail.com
+ *         fanzixiao@canaan-creative.com
  *
  * @par
  * This is free and unencumbered software released into the public domain.
@@ -20,13 +21,14 @@
 #define DFU_MAX_IMAGE_LEN	(16 * 1024)
 #define DFU_MAX_BLOCKS		(DFU_MAX_IMAGE_LEN/USB_DFU_XFER_SIZE)
 
-#define TIMEOUT_POLL_LONG	500
-#define TIMEOUT_POLL_SHORT	255
+#define TIMEOUT_POLL_LONG	1000
+#define TIMEOUT_POLL_SHORT	500
 
 static volatile uint8_t dfu_detach_sig = 0;
 extern const uint8_t USB_dfuConfigDescriptor[];
 
-static volatile uint8_t  enable_write_flash_status = 0;
+static volatile uint8_t enable_write_flash_status = 0;
+static volatile uint8_t last_upgrade_data_packet = 0;
 static volatile uint8_t finish_upgrade = 0;
 static volatile uint32_t write_flash_addr = 0;
 static volatile uint32_t receive_data_len = 0;
@@ -53,9 +55,6 @@ static uint8_t dfu_write(uint32_t block_num, uint8_t **pBuff, uint32_t length, u
 	bwPollTimeout[0] = (TIMEOUT_POLL_SHORT & 0xff);
 	bwPollTimeout[1] = ((TIMEOUT_POLL_SHORT >> 8) & 0xff);
 	bwPollTimeout[2] = ((TIMEOUT_POLL_SHORT >> 16) & 0xff);
-
-	enable_write_flash_status = 0;
-	finish_upgrade = 0;
 
 	if (length != 0) {
 		if (block_num >= DFU_MAX_BLOCKS) {
@@ -84,11 +83,12 @@ static uint8_t dfu_write(uint32_t block_num, uint8_t **pBuff, uint32_t length, u
 static void dfu_done(void)
 {
 	if (receive_data_len) {
-		finish_upgrade = 1;
 		enable_write_flash_status = 1;
 		write_flash_addr += FLASH_BUF_SIZE;
 	}
-	return;
+
+	last_upgrade_data_packet = 1;
+	finish_upgrade = 1;
 }
 
 static void dfu_detach(USBD_HANDLE_T hUsb)
@@ -99,6 +99,11 @@ static void dfu_detach(USBD_HANDLE_T hUsb)
 	pCtrl->high_speed_desc = (uint8_t *) &USB_dfuConfigDescriptor[0];
 
 	dfu_detach_sig = 1;
+
+	enable_write_flash_status = 0;
+	last_upgrade_data_packet = 0;
+	finish_upgrade = 0;
+	receive_data_len = 0;
 }
 
 ErrorCode_t dfu_init(USBD_HANDLE_T hUsb, USB_INTERFACE_DESCRIPTOR* pIntfDesc, USBD_API_INIT_PARAM_T *pUsbParam)
@@ -164,4 +169,14 @@ uint8_t get_finish_upgrade(void)
 void clear_finish_upgrade(void)
 {
 	finish_upgrade = 0;
+}
+
+uint8_t get_last_upgrade_data_packet(void)
+{
+	return last_upgrade_data_packet;
+}
+
+void clear_last_upgrade_data_packet(void)
+{
+	last_upgrade_data_packet = 0;
 }

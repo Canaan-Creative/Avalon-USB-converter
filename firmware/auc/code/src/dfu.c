@@ -3,6 +3,7 @@
  *
  * @note
  * Author: Mikeqin Fengling.Qin@gmail.com
+ *         fanzixiao@canaan-creative.com
  *
  * @par
  * This is free and unencumbered software released into the public domain.
@@ -16,68 +17,16 @@
 #include "dfu.h"
 #include "sbl_iap.h"
 
-#define DFU_DEST_BASE		0x4000
-#define DFU_MAX_IMAGE_LEN	(16 * 1024)
-#define DFU_MAX_BLOCKS		(DFU_MAX_IMAGE_LEN/USB_DFU_XFER_SIZE)
-
-#define TIMEOUT_POLL_LONG	500
-#define TIMEOUT_POLL_SHORT	255
-
 static volatile uint8_t dfu_detach_sig = 0;
 extern const uint8_t USB_dfuConfigDescriptor[];
 
-static volatile uint8_t  enable_write_flash_status = 0;
-static volatile uint8_t finish_upgrade = 0;
-static volatile uint32_t write_flash_addr = 0;
-static volatile uint32_t receive_data_len = 0;
-
 static uint32_t dfu_read(uint32_t block_num, uint8_t **pBuff, uint32_t length)
 {
-	uint32_t src_addr = DFU_DEST_BASE;
-
-	if (length) {
-		if (block_num == DFU_MAX_BLOCKS)
-			return 0;
-
-		if (block_num > DFU_MAX_BLOCKS)
-			return DFU_STATUS_errADDRESS;
-
-		src_addr += (block_num * USB_DFU_XFER_SIZE);
-		memcpy((void*)(*pBuff), (void*)src_addr, length);
-	}
 	return length;
 }
 
 static uint8_t dfu_write(uint32_t block_num, uint8_t **pBuff, uint32_t length, uint8_t *bwPollTimeout)
 {
-	bwPollTimeout[0] = (TIMEOUT_POLL_SHORT & 0xff);
-	bwPollTimeout[1] = ((TIMEOUT_POLL_SHORT >> 8) & 0xff);
-	bwPollTimeout[2] = ((TIMEOUT_POLL_SHORT >> 16) & 0xff);
-
-	enable_write_flash_status = 0;
-	finish_upgrade = 0;
-
-	if (length != 0) {
-		if (block_num >= DFU_MAX_BLOCKS) {
-			receive_data_len = 0;
-			return DFU_STATUS_errADDRESS;
-		}
-
-		memcpy((unsigned char *)&g_flash_buf[receive_data_len], (unsigned char*)&((*pBuff)[0]), length);
-		receive_data_len += length;
-		if (receive_data_len > FLASH_BUF_SIZE) {
-			receive_data_len = 0;
-			return DFU_STATUS_errADDRESS;
-		}
-		if (receive_data_len == FLASH_BUF_SIZE) {
-			receive_data_len = 0;
-			bwPollTimeout[0] = (TIMEOUT_POLL_LONG & 0xff);
-			bwPollTimeout[1] = ((TIMEOUT_POLL_LONG >> 8) & 0xff);
-			bwPollTimeout[2] = ((TIMEOUT_POLL_LONG >> 16) & 0xff);
-			enable_write_flash_status = 1;
-			write_flash_addr = DFU_DEST_BASE + ((block_num + 1) * USB_DFU_XFER_SIZE) - FLASH_BUF_SIZE;
-		}
-	}
 	return DFU_STATUS_OK;
 }
 

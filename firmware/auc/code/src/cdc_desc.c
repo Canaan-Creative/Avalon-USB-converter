@@ -162,7 +162,7 @@ ALIGNED(4) uint8_t USB_FsConfigDescriptor[] = {
 	USB_ENDPOINT_TYPE_BULK,				/* bmAttributes */
 	WBVAL(64),							/* wMaxPacketSize */
 	0x00,								/* bInterval: ignore for Bulk transfer */
-	
+
 	/* Interface 2, Alternate Setting 0, DFU Class */
 	USB_INTERFACE_DESC_SIZE,			/* bLength */
 	USB_INTERFACE_DESCRIPTOR_TYPE,		/* bDescriptorType */
@@ -179,7 +179,7 @@ ALIGNED(4) uint8_t USB_FsConfigDescriptor[] = {
 	USB_DFU_CAN_DOWNLOAD | USB_DFU_CAN_UPLOAD | USB_DFU_MANIFEST_TOL | USB_DFU_WILL_DETACH, /* bmAttributes */
 	WBVAL(0xFF00),						/* wDetachTimeout */
 	WBVAL(USB_DFU_XFER_SIZE),			/* wTransferSize */
-	WBVAL(0x100),						/* bcdDFUVersion */	
+	WBVAL(0x100),						/* bcdDFUVersion */
 	/* Terminator */
 	0									/* bLength */
 };
@@ -238,8 +238,19 @@ ALIGNED(4) const uint8_t USB_StringDescriptor[] = {
 	'4', 0,
 	'0', 0,
 	/* Index 0x05: Interface 2, Alternate Setting 0 */
-	(3 * 2 + 2),						/* bLength (3 Char + Type + lenght) */
+	(14 * 2 + 2),						/* bLength (14 Char + Type + lenght) */
 	USB_STRING_DESCRIPTOR_TYPE,			/* bDescriptorType */
+	'A', 0,
+	'v', 0,
+	'a', 0,
+	'l', 0,
+	'o', 0,
+	'n', 0,
+	' ', 0,
+	'U', 0,
+	'S', 0,
+	'B', 0,
+	' ', 0,
 	'D', 0,
 	'F', 0,
 	'U', 0,

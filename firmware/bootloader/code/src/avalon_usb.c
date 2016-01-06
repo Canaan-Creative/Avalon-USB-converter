@@ -4,6 +4,7 @@
  * @note
  * Author: Mikeqin Fengling.Qin@gmail.com
  * 		   Xiangfu@canaan-creative.com
+ *         fanzixiao@canaan-creative.com
  *
  * @par
  * This is free and unencumbered software released into the public domain.
@@ -56,13 +57,7 @@ static void usb_pin_clk_init(void)
  */
 void USB_IRQHandler(void)
 {
-	if ((*(uint32_t *)(APP_END_ADDR - 4)) != 0xAABBCCDD) {
-		USBD_API->hw->ISR(g_hUsb);
-	} else {
-		asm volatile("ldr r0, =0x4098");
-		asm volatile("ldr r0, [r0]");
-		asm volatile("mov pc, r0");
-	}
+	USBD_API->hw->ISR(g_hUsb);
 }
 
 /* Find the address of interface descriptor for given class type. */
@@ -125,9 +120,6 @@ void usb_init(void)
 	/* USB Initialization */
 	ret = USBD_API->hw->Init(&g_hUsb, &desc, &usb_param);
 	if (ret == LPC_OK) {
-
-		/* Init USB HID bridge interface */
-		//ret = UCOM_init(g_hUsb, find_IntfDesc(desc.high_speed_desc, USB_DEVICE_CLASS_HUMAN_INTERFACE), &usb_param);
 
 		ret = dfu_init(g_hUsb, find_IntfDesc(desc.high_speed_desc, USB_DEVICE_CLASS_APP), &usb_param);
 		if (ret == LPC_OK) {

@@ -3,6 +3,7 @@
  *
  * @note
  * Author: Mikeqin Fengling.Qin@gmail.com
+ *         fanzixiao@canaan-creative.com
  *
  * @par
  * This is free and unencumbered software released into the public domain.
@@ -164,47 +165,3 @@ unsigned int write_finish_upgrade_flag(void)
 
 	return ret;
 }
-
-#if 0
-unsigned int write_flash(unsigned int dst, unsigned char *src, unsigned int no_of_bytes)
-{
-	static unsigned int byte_cnt = 0;
-	unsigned int enabled_irqs;
-	int ret = 0;
-	int i = 0;
-
-#if 0
-#define WANT_NO 50
-	enabled_irqs = NVIC->ISER[0];
-	NVIC->ICER[0] = enabled_irqs;
-	if (no_of_bytes >= WANT_NO)
-			memcpy(g_flash_buf, src, WANT_NO);
-	else
-			memcpy(g_flash_buf, src, no_of_bytes);
-	NVIC->ISER[0] = enabled_irqs;
-#endif
-
-	enabled_irqs = NVIC->ISER[0];
-	memcpy(&g_flash_buf[byte_cnt], src, no_of_bytes);
-	byte_cnt += no_of_bytes;
-
-	if (byte_cnt == FLASH_BUF_SIZE) {
-		byte_cnt = 0;
-		cnt++;
-#if 0
-		//NVIC->ICER[0] = enabled_irqs;
-		byte_cnt = 0;
-		if (find_erase_prepare_sector(dst - FLASH_BUF_SIZE + no_of_bytes))
-			ret = 1;
-#if 0
-		if (write_data((dst - FLASH_BUF_SIZE + no_of_bytes), g_flash_buf, FLASH_BUF_SIZE))
-			ret = 1;
-#endif
-	//NVIC->ISER[0] = enabled_irqs;
-#endif
-	}
-
-	//delay(2000);
-	return ret;
-}
-#endif

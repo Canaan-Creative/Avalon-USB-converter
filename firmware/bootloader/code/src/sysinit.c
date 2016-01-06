@@ -1,8 +1,8 @@
 /*
- * @brief Common SystemInit function for LPC11xx chips
+ * @brief Common LPCOpen SystemInit function
  *
  * @note
- * Copyright(C) NXP Semiconductors, 2012-14
+ * Copyright(C) NXP Semiconductors, 2013
  * All rights reserved.
  *
  * @par
@@ -28,30 +28,11 @@
  * copyright, permission, and disclaimer notice must appear in all copies of
  * this code.
  */
-
  #if defined(NO_BOARD_LIB)
  #include "chip.h"
  #else
  #include "board.h"
  #endif
-
-/*****************************************************************************
- * Private types/enumerations/variables
- ****************************************************************************/
-
-/*****************************************************************************
- * Public types/enumerations/variables
- ****************************************************************************/
-
-#if defined(NO_BOARD_LIB)
-const uint32_t OscRateIn = 12000000;
-const uint32_t ExtRateIn = 0;
-#endif
-
-/*****************************************************************************
- * Private functions
- ****************************************************************************/
-
 /*****************************************************************************
  * Public functions
  ****************************************************************************/
@@ -67,3 +48,4 @@ void SystemInit(void)
 	Board_SystemInit();
 #endif
 }
+
