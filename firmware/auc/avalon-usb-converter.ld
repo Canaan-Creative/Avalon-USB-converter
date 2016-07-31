@@ -1,14 +1,14 @@
 MEMORY
 {
 	/* Define each memory region */
-	MFlash32 (rx) : ORIGIN = 0x0, LENGTH = 0x8000 /* 32K bytes */
-	RamLoc4 (rwx) : ORIGIN = 0x10000000, LENGTH = 0x1000 /* 4K bytes */
+	MFlash32 (rx) : ORIGIN = 0x4000, LENGTH = 0x4000 	/* 16K bytes */
+	RamLoc4 (rwx) : ORIGIN = 0x10000200, LENGTH = 0xe00 /* 3.5K bytes */
 	RamUsb2 (rwx) : ORIGIN = 0x20004000, LENGTH = 0x800 /* 2K bytes */
 }
 
 /* Define a symbol for the top of each memory region */
-__top_MFlash32 = 0x0 + 0x8000;
-__top_RamLoc4 = 0x10000000 + 0x1000;
+__top_MFlash32 = 0x4000 + 0x4000;
+__top_RamLoc4 = 0x10000200 + 0xe00;
 __top_RamUsb2 = 0x20004000 + 0x800;
 
 ENTRY(ResetISR)

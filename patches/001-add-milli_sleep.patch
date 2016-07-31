@@ -1,0 +1,10 @@
+--- src/dfu_load.c	2016-07-31 16:40:06.942373144 +0800
++++ src/dfu_load.cc	2016-07-31 16:39:42.493105664 +0800
+@@ -132,6 +132,7 @@
+		bytes_sent += ret;
+
+		do {
++			milli_sleep(200);
+			ret = dfu_get_status(dif->dev_handle, dif->interface, &dst);
+			if (ret < 0) {
+				fprintf(stderr, "Error during download get_status\n");

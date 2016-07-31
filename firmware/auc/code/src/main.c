@@ -37,6 +37,8 @@
 #include "cdc_i2c.h"
 #include "uart.h"
 #include "avalon_api.h"
+#include "dfu.h"
+#include "sbl_iap.h"
 
 #ifdef __CODE_RED
 #include <cr_section_macros.h>
@@ -57,12 +59,13 @@ static USBD_HANDLE_T g_hUsb;
 extern const  USBD_HW_API_T hw_api;
 extern const  USBD_CORE_API_T core_api;
 extern const  USBD_CDC_API_T cdc_api;
+extern const  USBD_DFU_API_T dfu_api;
 /* Since this example only uses HID class link functions for that class only */
 static const  USBD_API_T g_usbApi = {
 	&hw_api,
 	&core_api,
 	0,
-	0,
+	&dfu_api,
 	0,
 	&cdc_api,
 	0,
@@ -141,6 +144,23 @@ static void usb_pin_clk_init(void)
 	Chip_SYSCTL_PowerUp(SYSCTL_POWERDOWN_USBPAD_PD);
 }
 
+/* copy the nvic table to ram */
+static void copy_nvic_to_ram(void)
+{
+	volatile uint32_t *dst, size;
+	volatile const uint32_t *src;
+
+	src = (volatile uint32_t *)APP_START_ADDR;
+	dst = (volatile uint32_t *)RAM_START_ADDR;
+	size = NVIC_TABLE_LEN >> 2;
+	do {
+		*dst++ = *src++;
+	} while (--size);
+
+	/* NVIC remap to RAM */
+	Chip_SYSCTL_Map(0x01);
+}
+
 /**
  * @brief	main routine for blinky example
  * @return	Function should not exit.
@@ -153,6 +173,8 @@ int main(void)
 	USBD_HANDLE_T hCDC_I2C0;
 
 	/* Initialize board and chip */
+
+	copy_nvic_to_ram();
 	Board_Init();
 	UART_Init();
 
@@ -192,7 +214,10 @@ int main(void)
 	if (ret == LPC_OK) {
 		ret = CDC_I2C_init(g_hUsb, &desc, &usb_param, LPC_I2C, &hCDC_I2C0);
 		DEBUGOUT("CDC I2C Init Ret: %d\n", ret);
+		ret = dfu_init(g_hUsb, find_IntfDesc(desc.high_speed_desc, USB_DEVICE_CLASS_APP), &usb_param);
+		DEBUGOUT("DFU Init Ret: %d\n", ret);
 		if (ret == LPC_OK) {
+			NVIC_SetPriority(USB0_IRQn, 1);
 			/*  enable USB interrupts */
 			NVIC_EnableIRQ(USB0_IRQn);
 		}
@@ -216,6 +241,11 @@ int main(void)
 	CDC_I2C_SetState(hCDC_I2C0, CDC_I2C_STATE_INIT);
 
 	while (1) {
+		if (dfu_sig()) {
+			dfu_proc();
+			write_updata_flag();
+			NVIC_SystemReset();
+		}
 		CDC_I2C_process(hCDC_I2C0);
 		if (CDC_I2C_GetState(hCDC_I2C0) == CDC_I2C_STATE_NEEDRESET)
 			NVIC_SystemReset();
